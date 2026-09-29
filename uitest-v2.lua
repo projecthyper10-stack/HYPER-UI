@@ -98,6 +98,7 @@ local Window = MacLib:Window({
     DisabledWindowControls = {},
     ShowUserInfo = true,
     Keybind = Enum.KeyCode.RightControl,
+    AccentColor = Color3.fromRGB(29, 235, 169),
     AcrylicBlur = true,
 })
 
@@ -273,10 +274,12 @@ sections.SettingsMain:Keybind({
 
 sections.SettingsMain:Colorpicker({
     Name = "Accent Color",
-    Description = "Change the UI theme color (WIP).",
-    Default = Color3.fromRGB(255, 255, 255),
+    Description = "Change the UI theme and sidebar icon color.",
+    Default = Color3.fromRGB(29, 235, 169),
     Callback = function(color)
-        -- Hook to your theme changer if implemented
+        if Window and Window.SetAccentColor then
+            Window:SetAccentColor(color)
+        end
     end
 }, "AccentColor")
 

@@ -471,10 +471,13 @@ function MacLib:Window(Settings)
 		logoAsset = assets.logo
 	end
 
+	local currentAccentColor = Settings.AccentColor or Color3.fromRGB(29, 235, 169)
+
 	local globalSettingsButton = Instance.new("ImageButton")
 	globalSettingsButton.Name = "GlobalSettingsButton"
 	globalSettingsButton.Image = logoAsset
 	globalSettingsButton.ImageTransparency = 0.35
+	globalSettingsButton.ImageColor3 = currentAccentColor
 	globalSettingsButton.AnchorPoint = Vector2.new(1, 0.5)
 	globalSettingsButton.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
 	globalSettingsButton.BackgroundTransparency = 1
@@ -855,7 +858,8 @@ function MacLib:Window(Settings)
 			for _, tabData in ipairs(registeredTabs) do
 				if tabData.name then
 					tabData.name.Visible = true
-					Tween(tabData.name, TweenInfo.new(0.2, Enum.EasingStyle.Quad), { TextTransparency = 0.5 }):Play()
+					local isTabSelected = (currentTabInstance and tabData.content == currentTabInstance)
+					Tween(tabData.name, TweenInfo.new(0.2, Enum.EasingStyle.Quad), { TextTransparency = (isTabSelected and 0 or 0.25) }):Play()
 				end
 				if tabData.padding then
 					tabData.padding.PaddingLeft = UDim.new(0, 16)
@@ -1764,7 +1768,8 @@ function MacLib:Window(Settings)
 				tabImage = Instance.new("ImageLabel")
 				tabImage.Name = "TabImage"
 				tabImage.Image = iconAsset
-				tabImage.ImageTransparency = 0.5
+				tabImage.ImageTransparency = 0.25
+				tabImage.ImageColor3 = currentAccentColor
 				tabImage.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
 				tabImage.BackgroundTransparency = 1
 				tabImage.BorderColor3 = Color3.fromRGB(0, 0, 0)
@@ -1784,7 +1789,7 @@ function MacLib:Window(Settings)
 			tabSwitcherName.RichText = true
 			tabSwitcherName.TextColor3 = Color3.fromRGB(255, 255, 255)
 			tabSwitcherName.TextSize = 16
-			tabSwitcherName.TextTransparency = 0.5
+			tabSwitcherName.TextTransparency = 0.25
 			tabSwitcherName.TextTruncate = Enum.TextTruncate.SplitWord
 			tabSwitcherName.TextXAlignment = Enum.TextXAlignment.Left
 			tabSwitcherName.TextYAlignment = Enum.TextYAlignment.Top
@@ -1811,7 +1816,8 @@ function MacLib:Window(Settings)
 				name = tabSwitcherName,
 				padding = tabSwitcherUIPadding,
 				layout = tabSwitcherUIListLayout,
-				image = tabImage
+				image = tabImage,
+				content = elements1
 			})
 			if isSidebarCollapsed then
 				tabSwitcherName.Visible = false
@@ -1840,18 +1846,18 @@ function MacLib:Window(Settings)
 			tabSwitcher.MouseEnter:Connect(function()
 				if not currentTabInstance or currentTabInstance ~= elements1 then
 					Tween(tabSwitcher, TweenInfo.new(0.2, Enum.EasingStyle.Quad), { BackgroundTransparency = 0.97 }):Play()
-					Tween(tabSwitcherName, TweenInfo.new(0.2, Enum.EasingStyle.Quad), { TextTransparency = 0.3 }):Play()
+					Tween(tabSwitcherName, TweenInfo.new(0.2, Enum.EasingStyle.Quad), { TextTransparency = 0.05 }):Play()
 					if tabImage then
-						Tween(tabImage, TweenInfo.new(0.2, Enum.EasingStyle.Quad), { ImageTransparency = 0.3 }):Play()
+						Tween(tabImage, TweenInfo.new(0.2, Enum.EasingStyle.Quad), { ImageTransparency = 0.05 }):Play()
 					end
 				end
 			end)
 			tabSwitcher.MouseLeave:Connect(function()
 				if not currentTabInstance or currentTabInstance ~= elements1 then
 					Tween(tabSwitcher, TweenInfo.new(0.2, Enum.EasingStyle.Quad), { BackgroundTransparency = 1 }):Play()
-					Tween(tabSwitcherName, TweenInfo.new(0.2, Enum.EasingStyle.Quad), { TextTransparency = 0.5 }):Play()
+					Tween(tabSwitcherName, TweenInfo.new(0.2, Enum.EasingStyle.Quad), { TextTransparency = 0.25 }):Play()
 					if tabImage then
-						Tween(tabImage, TweenInfo.new(0.2, Enum.EasingStyle.Quad), { ImageTransparency = 0.5 }):Play()
+						Tween(tabImage, TweenInfo.new(0.2, Enum.EasingStyle.Quad), { ImageTransparency = 0.25 }):Play()
 					end
 				end
 			end)
@@ -5103,12 +5109,12 @@ function MacLib:Window(Settings)
 					end
 					if tabInfo.switcherImage then
 						Tween(tabInfo.switcherImage, TweenInfo.new(easetime, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
-							ImageTransparency = (isSelected and 0.1 or 0.5)
+							ImageTransparency = (isSelected and 0 or 0.25)
 						}):Play()
 					end
 					if tabInfo.switcherName then
 						Tween(tabInfo.switcherName, TweenInfo.new(easetime, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
-							TextTransparency = (isSelected and 0.1 or 0.5)
+							TextTransparency = (isSelected and 0 or 0.25)
 						}):Play()
 					end
 				end
@@ -5964,6 +5970,23 @@ function MacLib:Window(Settings)
 	end
 	function WindowFunctions:GetScale()
 		return targetUserScale
+	end
+
+	function WindowFunctions:SetAccentColor(color)
+		if typeof(color) == "Color3" then
+			currentAccentColor = color
+			if globalSettingsButton then
+				globalSettingsButton.ImageColor3 = color
+			end
+			for _, tabData in ipairs(registeredTabs) do
+				if tabData.image then
+					tabData.image.ImageColor3 = color
+				end
+			end
+		end
+	end
+	function WindowFunctions:GetAccentColor()
+		return currentAccentColor
 	end
 
 	local ClassParser = {
