@@ -855,6 +855,10 @@ IconEngine.Lucide = {
 	["lucide-wifi"] = "rbxassetid://10747382504",
 	["lucide-wifi-off"] = "rbxassetid://10747382268",
 	["lucide-wind"] = "rbxassetid://10747382750",
+	["lucide-wheat"] = "rbxassetid://10734975692",
+	["wheat"] = "rbxassetid://10734975692",
+	["lucide-farming"] = "rbxassetid://10734975692",
+	["farming"] = "rbxassetid://10734975692",
 	["lucide-wrap-text"] = "rbxassetid://10747383065",
 	["lucide-wrench"] = "rbxassetid://10747383470",
 	["lucide-x"] = "rbxassetid://10747384394",
@@ -1080,13 +1084,26 @@ function IconEngine:GetIcon(name, font_aws)
 
 	-- Search Lucide (with or without 'lucide-' prefix)
 	local lower = string.lower(strName)
-	return IconEngine.Lucide["lucide-" .. lower]
+	local trimmed = lower:gsub("^lucide%-", "")
+	local found = IconEngine.Lucide["lucide-" .. trimmed]
+		or IconEngine.Lucide[trimmed]
+		or IconEngine.Lucide["lucide-" .. lower]
 		or IconEngine.Lucide[lower]
 		or IconEngine.Lucide["lucide-" .. strName]
 		or IconEngine.Lucide[strName]
+		or IconEngine.FontAwesome[trimmed]
 		or IconEngine.FontAwesome[lower]
 		or IconEngine.FontAwesome[strName]
-		or ("rbxassetid://" .. strName)
+
+	if found then
+		return found
+	end
+
+	if lower:find("farm") or lower:find("wheat") or lower:find("crop") then
+		return IconEngine.Lucide["lucide-swords"] or "rbxassetid://10734975692"
+	end
+
+	return IconEngine.Lucide["lucide-star"] or "rbxassetid://10734966248"
 end
 
 -- Backward compatibility metatable for old code indexing .Icons[name]

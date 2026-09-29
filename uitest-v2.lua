@@ -117,7 +117,7 @@ local tabGroups = {
 
 local tabs = {
     Home       = tabGroups.Main:Tab({ Name = "Home",       Icon = "lucide-home" }),
-    Farming    = tabGroups.Features:Tab({ Name = "Farming",    Icon = "lucide-wheat" }),
+    Farming    = tabGroups.Features:Tab({ Name = "Farming",    Icon = "lucide-swords" }),
     Loadout    = tabGroups.Features:Tab({ Name = "Loadout",      Icon = "lucide-shield" }),
     Movement   = tabGroups.Features:Tab({ Name = "Movement",  Icon = "lucide-person-standing" }),
     Breathing  = tabGroups.Features:Tab({ Name = "Breathing",  Icon = "lucide-wind" }),
