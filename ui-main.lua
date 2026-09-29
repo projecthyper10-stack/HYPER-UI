@@ -38,12 +38,15 @@ local unloaded = false
 local ICON_URL = "https://raw.githubusercontent.com/projecthyper10-stack/HYPER-UI/refs/heads/main/icon.lua"
 
 local IconEngine
+-- 0. ใช้ค่าที่ถูก inject ผ่าน _G ก่อน (จาก uitest-v2.lua)
+if _G._MacLibIconEngine then
+	IconEngine = _G._MacLibIconEngine
 -- 1. โหลดจาก GitHub
-local _iconOk, _iconResult = pcall(function()
-	return loadstring(game:HttpGet(ICON_URL))()
-end)
-if _iconOk and _iconResult then
-	IconEngine = _iconResult
+elseif pcall(function() game:HttpGet("") end) then
+	local _iconOk, _iconResult = pcall(function()
+		return loadstring(game:HttpGet(ICON_URL .. "?t=" .. tostring(tick())))()
+	end)
+	if _iconOk and _iconResult then IconEngine = _iconResult end
 -- 2. Fallback: โหลดจากไฟล์ในเครื่อง
 elseif isfile and readfile and isfile(MacLib.Folder .. "/icon.lua") then
 	local success, result = pcall(function() return loadstring(readfile(MacLib.Folder .. "/icon.lua"))() end)
@@ -53,6 +56,7 @@ elseif pcall(function() return require(script.Parent.icon) end) then
 	local success, result = pcall(function() return require(script.Parent.icon) end)
 	if success and result then IconEngine = result end
 end
+
 
 if not IconEngine then
 	warn("[MacLib] Failed to load icon.lua, using default assets.")

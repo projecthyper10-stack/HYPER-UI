@@ -4,21 +4,50 @@
 
 local REPO = "https://raw.githubusercontent.com/projecthyper10-stack/HYPER-UI/refs/heads/main/"
 
-local MacLib
--- 1. โหลดจาก GitHub (แนะนำ - เสมอ up-to-date)
-local ok, result = pcall(function()
-    return loadstring(game:HttpGet(REPO .. "ui-main.lua"))()
+-- Step 1: โหลด icon.lua ก่อน แล้วฝังใน _G เพื่อให้ ui-main.lua หยิบไปใช้ได้
+pcall(function()
+    local iconCode = ""
+    if typeof(isfile) == "function" and isfile("icon.lua") then
+        iconCode = readfile("icon.lua")
+    elseif typeof(isfile) == "function" and isfile("Maclib/icon.lua") then
+        iconCode = readfile("Maclib/icon.lua")
+    else
+        iconCode = game:HttpGet(REPO .. "icon.lua?t=" .. tostring(tick()))
+    end
+    local func = loadstring(iconCode)
+    if func then
+        local ok, result = pcall(func)
+        if ok and result then
+            _G._MacLibIconEngine = result
+        end
+    end
 end)
-if ok and result then
-    MacLib = result
--- 2. Fallback: โหลดจากไฟล์ในเครื่อง (Maclib/ui-main.lua)
-elseif isfile and readfile and isfile("Maclib/ui-main.lua") then
-    MacLib = loadstring(readfile("Maclib/ui-main.lua"))()
--- 3. Fallback: Roblox Studio require
-elseif script and script.Parent and script.Parent:FindFirstChild("ui-main") then
-    MacLib = require(script.Parent["ui-main"])
+
+-- Step 2: โหลด ui-main.lua
+local MacLib
+local okLoad, resLoad = pcall(function()
+    local code = ""
+
+    if typeof(isfile) == "function" and isfile("ui-main.lua") then
+        code = readfile("ui-main.lua")
+    elseif typeof(isfile) == "function" and isfile("Maclib/ui-main.lua") then
+        code = readfile("Maclib/ui-main.lua")
+    else
+        code = game:HttpGet(REPO .. "ui-main.lua?t=" .. tostring(tick()))
+    end
+
+    local func, err = loadstring(code)
+    if not func then error("[ui-main.lua Compile Error]: " .. tostring(err)) end
+
+    local ok, result = pcall(func)
+    if not ok then error("[ui-main.lua Runtime Error]: " .. tostring(result)) end
+    return result
+end)
+
+if okLoad and resLoad then
+    MacLib = resLoad
 else
-    warn("[MacLib] Failed to load ui-main.lua from GitHub or local file.")
+    warn("[MacLib] Failed to load: " .. tostring(resLoad))
     return
 end
 
