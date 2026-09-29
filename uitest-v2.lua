@@ -90,7 +90,7 @@ else warn("[MacLib] Failed to load: " .. tostring(resLoad)) return end
 local Window = MacLib:Window({
     Title = "Slayers2",
     Subtitle = "Primary",
-    Size = UDim2.fromOffset(660, 420),
+    Size = UDim2.fromOffset(780, 500),
     DragStyle = 1,
     DisabledWindowControls = {},
     ShowUserInfo = true,
@@ -265,6 +265,21 @@ sections.SettingsMain:Colorpicker({
         -- Hook to your theme changer if implemented
     end
 }, "AccentColor")
+
+sections.SettingsMain:Slider({
+    Name = "UI Scale",
+    Description = "Adjust the overall size of the interface.",
+    Default = 100,
+    Minimum = 75,
+    Maximum = 130,
+    DisplayMethod = "%",
+    Precision = 0,
+    Callback = function(v)
+        if Window and Window.SetScale then
+            Window:SetScale(v / 100)
+        end
+    end
+}, "UIScale")
 
 -- ==============================================================================
 --  Config & Init

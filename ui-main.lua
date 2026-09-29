@@ -196,7 +196,7 @@ function MacLib:Window(Settings)
 	base.BorderColor3 = Color3.fromRGB(0, 0, 0)
 	base.BorderSizePixel = 0
 	base.Position = UDim2.fromScale(0.5, 0.5)
-	base.Size = Settings.Size or UDim2.fromOffset(660, 420)
+	base.Size = Settings.Size or UDim2.fromOffset(780, 500)
 
 	local baseUIScale = Instance.new("UIScale")
 	baseUIScale.Name = "BaseUIScale"
@@ -242,7 +242,7 @@ function MacLib:Window(Settings)
 	sidebar.BorderColor3 = Color3.fromRGB(0, 0, 0)
 	sidebar.BorderSizePixel = 0
 	sidebar.Position = UDim2.fromScale(-3.52e-08, 4.69e-08)
-	sidebar.Size = UDim2.fromScale(0.28, 1)
+	sidebar.Size = UDim2.fromScale(0.3, 1)
 
 	local divider = Instance.new("Frame")
 	divider.Name = "Divider"
@@ -1010,7 +1010,7 @@ function MacLib:Window(Settings)
 	windowResize.Name = "WindowResizeHandle"
 	windowResize.AnchorPoint = Vector2.new(1, 1)
 	windowResize.Position = UDim2.new(1, 0, 1, 0)
-	windowResize.Size = UDim2.fromOffset(20, 20)
+	windowResize.Size = UDim2.fromOffset(28, 28)
 	windowResize.BackgroundTransparency = 1
 	windowResize.AutoButtonColor = false
 	windowResize.Parent = base
@@ -1020,7 +1020,7 @@ function MacLib:Window(Settings)
 	resizeGrip.Name = "Grip"
 	resizeGrip.AnchorPoint = Vector2.new(1, 1)
 	resizeGrip.Position = UDim2.new(1, -4, 1, -4)
-	resizeGrip.Size = UDim2.fromOffset(10, 10)
+	resizeGrip.Size = UDim2.fromOffset(14, 14)
 	resizeGrip.BackgroundTransparency = 1
 	resizeGrip.Image = assets.transform
 	resizeGrip.ImageTransparency = 0.6
