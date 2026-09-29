@@ -85,18 +85,27 @@ local assets = IconEngine.Assets
 
 --// Functions
 local function GetGui()
-	local newGui = Instance.new("ScreenGui")
-	newGui.ScreenInsets = Enum.ScreenInsets.None
-	newGui.ResetOnSpawn = false
-	newGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
-	newGui.DisplayOrder = 2147483647
-
 	local parent = RunService:IsStudio() 
 		and LocalPlayer:FindFirstChild("PlayerGui")
 		or (gethui and gethui())
 		or (cloneref and cloneref(MacLib.GetService("CoreGui")) or MacLib.GetService("CoreGui"))
 
+	if parent then
+		for _, child in ipairs(parent:GetChildren()) do
+			if child.Name == "MacLibScreenGui" then
+				child:Destroy()
+			end
+		end
+	end
+
+	local newGui = Instance.new("ScreenGui")
+	newGui.Name = "MacLibScreenGui"
+	newGui.ScreenInsets = Enum.ScreenInsets.None
+	newGui.ResetOnSpawn = false
+	newGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+	newGui.DisplayOrder = 2147483647
 	newGui.Parent = parent
+
 	return newGui
 end
 
