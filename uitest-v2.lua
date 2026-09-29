@@ -100,6 +100,7 @@ local Window = MacLib:Window({
     Keybind = Enum.KeyCode.RightControl,
     AccentColor = Color3.fromRGB(29, 235, 169),
     WindowControlSize = 12,
+    Transparency = 0.25,
     AcrylicBlur = true,
 })
 
@@ -300,6 +301,21 @@ sections.SettingsMain:Slider({
         end
     end
 }, "UIScale")
+
+sections.SettingsMain:Slider({
+    Name = "UI Transparency",
+    Description = "Adjust the transparency level of the interface.",
+    Default = 25,
+    Minimum = 0,
+    Maximum = 80,
+    DisplayMethod = "%",
+    Precision = 0,
+    Callback = function(v)
+        if Window and Window.SetTransparency then
+            Window:SetTransparency(v / 100)
+        end
+    end
+}, "UITransparency")
 
 -- ==============================================================================
 --  Config & Init

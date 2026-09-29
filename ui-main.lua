@@ -189,11 +189,17 @@ function MacLib:Window(Settings)
 	notificationsUIPadding.PaddingTop = UDim.new(0, 10)
 	notificationsUIPadding.Parent = notifications
 
+	local currentTransparency = Settings.BackgroundTransparency or Settings.Transparency or (Settings.AcrylicBlur ~= false and 0.25 or 0.15)
+	if typeof(currentTransparency) == "number" and currentTransparency > 1 then
+		currentTransparency = currentTransparency / 100
+	end
+	currentTransparency = math.clamp(currentTransparency, 0, 0.95)
+
 	local base = Instance.new("Frame")
 	base.Name = "Base"
 	base.AnchorPoint = Vector2.new(0.5, 0.5)
 	base.BackgroundColor3 = Color3.fromRGB(15, 15, 15)
-	base.BackgroundTransparency = Settings.AcrylicBlur and 0.05 or 0
+	base.BackgroundTransparency = currentTransparency
 	base.BorderColor3 = Color3.fromRGB(0, 0, 0)
 	base.BorderSizePixel = 0
 	base.Position = UDim2.fromScale(0.5, 0.5)
@@ -5985,11 +5991,23 @@ function MacLib:Window(Settings)
 
 	function WindowFunctions:SetAcrylicBlurState(State)
 		acrylicBlur = State
-		base.BackgroundTransparency = State and 0.05 or 0
+		base.BackgroundTransparency = State and currentTransparency or 0
 	end
 
 	function WindowFunctions:GetAcrylicBlurState()
 		return acrylicBlur
+	end
+
+	function WindowFunctions:SetTransparency(trans)
+		if typeof(trans) == "number" then
+			if trans > 1 then trans = trans / 100 end
+			currentTransparency = math.clamp(trans, 0, 0.95)
+			base.BackgroundTransparency = currentTransparency
+		end
+	end
+
+	function WindowFunctions:GetTransparency()
+		return currentTransparency
 	end
 
 	local function _SetUserInfoState(State)
