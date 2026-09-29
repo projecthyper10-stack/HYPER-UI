@@ -1,4 +1,4 @@
-﻿-- ==============================================================================
+-- ==============================================================================
 --  HYPER HUB / MACLIB - UI Test Script (Slayers2 Style)
 -- ==============================================================================
 
@@ -64,6 +64,7 @@ Window:GlobalSetting({ Name = "Notifications", Default = Window:GetNotifications
 -- ==============================================================================
 
 local tabGroups = {
+    Main       = Window:TabGroup(),
     AutoFarm   = Window:TabGroup(),
     Combat     = Window:TabGroup(),
     Character  = Window:TabGroup(),
@@ -77,6 +78,7 @@ local tabGroups = {
 -- ==============================================================================
 
 local tabs = {
+    Home       = tabGroups.Main:Tab({ Name = "Home",       Icon = "lucide-home" }),
     Farming    = tabGroups.AutoFarm:Tab({ Name = "Farming",    Icon = "lucide-wheat" }),
     Loadout    = tabGroups.Combat:Tab({ Name = "Loadout",      Icon = "lucide-shield" }),
     Movement   = tabGroups.Character:Tab({ Name = "Movement",  Icon = "lucide-person-standing" }),
@@ -91,6 +93,8 @@ local tabs = {
 -- ==============================================================================
 
 local sections = {
+    HomeWelcome   = tabs.Home:Section({ Name = "Welcome", Side = "Left" }),
+    HomeStats     = tabs.Home:Section({ Name = "System Information", Side = "Right" }),
     FarmingMain   = tabs.Farming:Section({ Name = "Auto Farm", Side = "Left" }),
     BossSection   = tabs.Farming:Section({ Name = "Bosses",    Side = "Left" }),
     BossHunt      = tabs.Farming:Section({ Name = "Boss Hunt", Side = "Left" }),
@@ -101,6 +105,39 @@ local sections = {
     TravelMain    = tabs.Travel:Section({ Name = "Navigation", Side = "Left" }),
     SchematicsMain = tabs.Schematics:Section({ Name = "Schematics", Side = "Left" }),
 }
+
+-- ==============================================================================
+--  Home Tab
+-- ==============================================================================
+
+local plr = game:GetService("Players").LocalPlayer
+
+sections.HomeWelcome:Label({ Text = "Welcome, " .. (plr and plr.DisplayName or "User") .. "!" })
+sections.HomeWelcome:SubLabel({ Text = "Thanks for using HYPER HUB v2.6" })
+
+sections.HomeStats:Label({ Text = "User" })
+sections.HomeStats:SubLabel({ Text = plr and plr.Name or "Unknown" })
+
+sections.HomeStats:Label({ Text = "Executor" })
+sections.HomeStats:SubLabel({ Text = (identifyexecutor and identifyexecutor()) or "Unknown" })
+
+sections.HomeStats:Label({ Text = "Device / OS" })
+sections.HomeStats:SubLabel({ Text = "Windows / PC" })
+
+sections.HomeStats:Label({ Text = "Current Time" })
+-- Actually we don't have a returned object with SetText in Maclib Demo usually, 
+-- but we can just set it once, or if Maclib supports it, update it.
+local timeSub = sections.HomeStats:SubLabel({ Text = os.date("%X") })
+
+task.spawn(function()
+    while task.wait(1) do
+        if timeSub and timeSub.SetText then
+            pcall(function() timeSub:SetText(os.date("%X")) end)
+        elseif timeSub and timeSub.SetDesc then
+            pcall(function() timeSub:SetDesc(os.date("%X")) end)
+        end
+    end
+end)
 
 -- ==============================================================================
 --  Farming Tab
@@ -168,5 +205,5 @@ tabs.Farming:InsertConfigSection("Left")
 
 Window.onUnloaded(function() print("[Slayers2] Unloaded!") end)
 
-tabs.Farming:Select()
+tabs.Home:Select()
 MacLib:LoadAutoLoadConfig()
