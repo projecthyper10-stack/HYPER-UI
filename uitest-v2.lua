@@ -4,6 +4,48 @@
 
 local REPO = "https://raw.githubusercontent.com/projecthyper10-stack/HYPER-UI/refs/heads/main/"
 
+-- Step 0: Clean up any previous UI instances thoroughly
+pcall(function()
+    local globalEnv = (getgenv and getgenv()) or _G
+    if globalEnv._MacLibScreenGui and typeof(globalEnv._MacLibScreenGui) == "Instance" then
+        pcall(function() globalEnv._MacLibScreenGui:Destroy() end)
+        globalEnv._MacLibScreenGui = nil
+    end
+    if _G._MacLibScreenGui and typeof(_G._MacLibScreenGui) == "Instance" then
+        pcall(function() _G._MacLibScreenGui:Destroy() end)
+        _G._MacLibScreenGui = nil
+    end
+
+    local containers = {}
+    if typeof(gethui) == "function" then
+        pcall(function() table.insert(containers, gethui()) end)
+    end
+    pcall(function()
+        local CoreGui = game:GetService("CoreGui")
+        if CoreGui then table.insert(containers, CoreGui) end
+    end)
+    pcall(function()
+        local lp = game:GetService("Players").LocalPlayer
+        if lp and lp:FindFirstChild("PlayerGui") then
+            table.insert(containers, lp.PlayerGui)
+        end
+    end)
+
+    for _, container in ipairs(containers) do
+        pcall(function()
+            for _, child in ipairs(container:GetChildren()) do
+                if child:IsA("ScreenGui") then
+                    if child.Name == "MacLibScreenGui"
+                        or (child:FindFirstChild("Base") and child.Base:FindFirstChild("Sidebar"))
+                        or child:FindFirstChild("Breadcrumb") then
+                        child:Destroy()
+                    end
+                end
+            end
+        end)
+    end
+end)
+
 -- Step 1: Pre-load icon.lua
 pcall(function()
     local iconCode = ""
@@ -48,7 +90,7 @@ else warn("[MacLib] Failed to load: " .. tostring(resLoad)) return end
 local Window = MacLib:Window({
     Title = "Slayers2",
     Subtitle = "Primary",
-    Size = UDim2.fromOffset(868, 550),
+    Size = UDim2.fromOffset(660, 420),
     DragStyle = 1,
     DisabledWindowControls = {},
     ShowUserInfo = true,

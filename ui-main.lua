@@ -84,19 +84,53 @@ end
 local assets = IconEngine.Assets
 
 --// Functions
+local function CleanOldGuis()
+	local globalEnv = (getgenv and getgenv()) or _G
+	if globalEnv._MacLibScreenGui and typeof(globalEnv._MacLibScreenGui) == "Instance" then
+		pcall(function() globalEnv._MacLibScreenGui:Destroy() end)
+		globalEnv._MacLibScreenGui = nil
+	end
+	if _G._MacLibScreenGui and typeof(_G._MacLibScreenGui) == "Instance" then
+		pcall(function() _G._MacLibScreenGui:Destroy() end)
+		_G._MacLibScreenGui = nil
+	end
+
+	local containers = {}
+	if typeof(gethui) == "function" then
+		pcall(function() table.insert(containers, gethui()) end)
+	end
+	pcall(function()
+		local cg = cloneref and cloneref(MacLib.GetService("CoreGui")) or MacLib.GetService("CoreGui")
+		if cg then table.insert(containers, cg) end
+	end)
+	pcall(function()
+		if LocalPlayer and LocalPlayer:FindFirstChild("PlayerGui") then
+			table.insert(containers, LocalPlayer.PlayerGui)
+		end
+	end)
+
+	for _, container in ipairs(containers) do
+		pcall(function()
+			for _, child in ipairs(container:GetChildren()) do
+				if child:IsA("ScreenGui") then
+					if child.Name == "MacLibScreenGui"
+						or (child:FindFirstChild("Base") and child.Base:FindFirstChild("Sidebar"))
+						or child:FindFirstChild("Breadcrumb") then
+						child:Destroy()
+					end
+				end
+			end
+		end)
+	end
+end
+
 local function GetGui()
+	CleanOldGuis()
+
 	local parent = RunService:IsStudio() 
 		and LocalPlayer:FindFirstChild("PlayerGui")
 		or (gethui and gethui())
 		or (cloneref and cloneref(MacLib.GetService("CoreGui")) or MacLib.GetService("CoreGui"))
-
-	if parent then
-		for _, child in ipairs(parent:GetChildren()) do
-			if child.Name == "MacLibScreenGui" then
-				child:Destroy()
-			end
-		end
-	end
 
 	local newGui = Instance.new("ScreenGui")
 	newGui.Name = "MacLibScreenGui"
@@ -105,6 +139,10 @@ local function GetGui()
 	newGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
 	newGui.DisplayOrder = 2147483647
 	newGui.Parent = parent
+
+	local globalEnv = (getgenv and getgenv()) or _G
+	globalEnv._MacLibScreenGui = newGui
+	_G._MacLibScreenGui = newGui
 
 	return newGui
 end
@@ -158,7 +196,7 @@ function MacLib:Window(Settings)
 	base.BorderColor3 = Color3.fromRGB(0, 0, 0)
 	base.BorderSizePixel = 0
 	base.Position = UDim2.fromScale(0.5, 0.5)
-	base.Size = Settings.Size or UDim2.fromOffset(868, 650)
+	base.Size = Settings.Size or UDim2.fromOffset(660, 420)
 
 	local baseUIScale = Instance.new("UIScale")
 	baseUIScale.Name = "BaseUIScale"
@@ -204,7 +242,7 @@ function MacLib:Window(Settings)
 	sidebar.BorderColor3 = Color3.fromRGB(0, 0, 0)
 	sidebar.BorderSizePixel = 0
 	sidebar.Position = UDim2.fromScale(-3.52e-08, 4.69e-08)
-	sidebar.Size = UDim2.fromScale(0.325, 1)
+	sidebar.Size = UDim2.fromScale(0.28, 1)
 
 	local divider = Instance.new("Frame")
 	divider.Name = "Divider"
@@ -966,6 +1004,57 @@ function MacLib:Window(Settings)
 	topbar.Parent = content
 
 	content.Parent = base
+
+	-- Window Resize Handle (Bottom-Right)
+	local windowResize = Instance.new("ImageButton")
+	windowResize.Name = "WindowResizeHandle"
+	windowResize.AnchorPoint = Vector2.new(1, 1)
+	windowResize.Position = UDim2.new(1, 0, 1, 0)
+	windowResize.Size = UDim2.fromOffset(20, 20)
+	windowResize.BackgroundTransparency = 1
+	windowResize.AutoButtonColor = false
+	windowResize.Parent = base
+	windowResize.ZIndex = 25
+
+	local resizeGrip = Instance.new("ImageLabel")
+	resizeGrip.Name = "Grip"
+	resizeGrip.AnchorPoint = Vector2.new(1, 1)
+	resizeGrip.Position = UDim2.new(1, -4, 1, -4)
+	resizeGrip.Size = UDim2.fromOffset(10, 10)
+	resizeGrip.BackgroundTransparency = 1
+	resizeGrip.Image = assets.transform
+	resizeGrip.ImageTransparency = 0.6
+	resizeGrip.Parent = windowResize
+
+	local isResizingWindow = false
+	local resizeStartMouse = Vector2.new()
+	local resizeStartWinSize = Vector2.new()
+
+	windowResize.InputBegan:Connect(function(inp)
+		if inp.UserInputType == Enum.UserInputType.MouseButton1 or inp.UserInputType == Enum.UserInputType.Touch then
+			isResizingWindow = true
+			resizeStartMouse = Vector2.new(inp.Position.X, inp.Position.Y)
+			resizeStartWinSize = Vector2.new(base.AbsoluteSize.X, base.AbsoluteSize.Y)
+			Tween(resizeGrip, TweenInfo.new(0.15), { ImageTransparency = 0.2 }):Play()
+		end
+	end)
+
+	UserInputService.InputChanged:Connect(function(inp)
+		if isResizingWindow and (inp.UserInputType == Enum.UserInputType.MouseMovement or inp.UserInputType == Enum.UserInputType.Touch) then
+			local deltaX = inp.Position.X - resizeStartMouse.X
+			local deltaY = inp.Position.Y - resizeStartMouse.Y
+			local newW = math.clamp(resizeStartWinSize.X + deltaX, 480, 1100)
+			local newH = math.clamp(resizeStartWinSize.Y + deltaY, 320, 750)
+			base.Size = UDim2.fromOffset(newW, newH)
+		end
+	end)
+
+	UserInputService.InputEnded:Connect(function(inp)
+		if inp.UserInputType == Enum.UserInputType.MouseButton1 or inp.UserInputType == Enum.UserInputType.Touch then
+			isResizingWindow = false
+			Tween(resizeGrip, TweenInfo.new(0.2), { ImageTransparency = 0.6 }):Play()
+		end
+	end)
 
 	local globalSettings = Instance.new("Frame")
 	globalSettings.Name = "GlobalSettings"
