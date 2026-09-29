@@ -166,6 +166,27 @@ function MacLib:Window(Settings)
 	baseUIStroke.Color = Color3.fromRGB(255, 255, 255)
 	baseUIStroke.Transparency = 0.9
 	baseUIStroke.Parent = base
+	
+	local breadcrumb = Instance.new("ImageButton")
+	breadcrumb.Name = "Breadcrumb"
+	breadcrumb.Size = UDim2.fromOffset(46, 46)
+	breadcrumb.Position = UDim2.new(0.5, 0, 0, -20)
+	breadcrumb.AnchorPoint = Vector2.new(0.5, 0)
+	breadcrumb.BackgroundColor3 = Color3.fromRGB(20, 20, 20)
+	breadcrumb.Image = "rbxassetid://136264753381080" -- Singularity star icon or globe
+	breadcrumb.Visible = false
+	breadcrumb.AutoButtonColor = false
+	breadcrumb.Parent = macLib
+    
+	local breadcrumbCorner = Instance.new("UICorner")
+	breadcrumbCorner.CornerRadius = UDim.new(1, 0)
+	breadcrumbCorner.Parent = breadcrumb
+    
+	local breadcrumbStroke = Instance.new("UIStroke")
+	breadcrumbStroke.Color = Color3.fromRGB(255, 255, 255)
+	breadcrumbStroke.Transparency = 0.8
+	breadcrumbStroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
+	breadcrumbStroke.Parent = breadcrumb
 
 	local sidebar = Instance.new("Frame")
 	sidebar.Name = "Sidebar"
@@ -5307,10 +5328,29 @@ function MacLib:Window(Settings)
 		return notifications.Visible
 	end
 
+	local closedUIStyle = "Hidden"
+	
+	function WindowFunctions:SetClosedUIStyle(Style)
+		closedUIStyle = Style
+		if not windowState then
+			breadcrumb.Visible = (Style == "Breadcrumb")
+		end
+	end
+
 	function WindowFunctions:SetState(State)
 		windowState = State
 		base.Visible = State
+		if not State and closedUIStyle == "Breadcrumb" then
+			breadcrumb.Visible = true
+		else
+			breadcrumb.Visible = false
+		end
 	end
+	
+	breadcrumb.MouseButton1Click:Connect(function()
+		local state = not WindowFunctions:GetState()
+		WindowFunctions:SetState(state)
+	end)
 
 	function WindowFunctions:GetState()
 		return windowState

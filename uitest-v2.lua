@@ -71,6 +71,7 @@ local tabGroups = {
     Training   = Window:TabGroup(),
     Navigation = Window:TabGroup(),
     Farms      = Window:TabGroup(),
+    SettingsGroup = Window:TabGroup(),
 }
 
 -- ==============================================================================
@@ -86,6 +87,7 @@ local tabs = {
     DemonArt   = tabGroups.Training:Tab({ Name = "Demon Art",  Icon = "lucide-flame" }),
     Travel     = tabGroups.Navigation:Tab({ Name = "Travel",   Icon = "lucide-map-pin" }),
     Schematics = tabGroups.Farms:Tab({ Name = "Schematics",    Icon = "lucide-clipboard" }),
+    UISettings = tabGroups.SettingsGroup:Tab({ Name = "UI Settings", Icon = "lucide-settings" }),
 }
 
 -- ==============================================================================
@@ -104,6 +106,7 @@ local sections = {
     DemonArtMain  = tabs.DemonArt:Section({ Name = "Demon Art", Side = "Left" }),
     TravelMain    = tabs.Travel:Section({ Name = "Navigation", Side = "Left" }),
     SchematicsMain = tabs.Schematics:Section({ Name = "Schematics", Side = "Left" }),
+    SettingsMain   = tabs.UISettings:Section({ Name = "Settings", Side = "Left" }),
 }
 
 -- ==============================================================================
@@ -195,6 +198,31 @@ sections.TravelMain:Button({ Name = "Travel Now", Description = "Teleport to sel
 -- ==============================================================================
 
 sections.SchematicsMain:Toggle({ Name = "Auto Collect Schematics", Description = "Automatically picks up schematics in the world.", Default = false, Callback = function(v) end }, "AutoSchematics")
+
+-- ==============================================================================
+--  UI Settings Tab
+-- ==============================================================================
+
+sections.SettingsMain:Dropdown({
+    Name = "Closed UI Style",
+    Description = "Select the style of the minimized UI.",
+    Options = { "Hidden", "Breadcrumb" },
+    Default = 1,
+    Callback = function(style)
+        if Window.SetClosedUIStyle then
+            Window:SetClosedUIStyle(style)
+        end
+    end
+}, "ClosedUIStyle")
+
+sections.SettingsMain:Colorpicker({
+    Name = "Accent Color",
+    Description = "Change the UI theme color (WIP).",
+    Default = Color3.fromRGB(255, 255, 255),
+    Callback = function(color)
+        -- Hook to your theme changer if implemented
+    end
+}, "AccentColor")
 
 -- ==============================================================================
 --  Config & Init
