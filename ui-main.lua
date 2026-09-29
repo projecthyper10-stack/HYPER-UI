@@ -1401,7 +1401,7 @@ function MacLib:Window(Settings)
 					pathText = pathText .. " • " .. feat.Description
 				end
 				featPath.Text = pathText
-				featPath.FontFace = Font.new(assets.interFont, Enum.FontWeight.Normal)
+				featPath.FontFace = Font.new(assets.interFont, Enum.FontWeight.Regular)
 				featPath.TextSize = 10
 				featPath.TextColor3 = Color3.fromRGB(140, 140, 150)
 				featPath.TextXAlignment = Enum.TextXAlignment.Left
