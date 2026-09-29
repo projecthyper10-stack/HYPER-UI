@@ -196,7 +196,7 @@ function MacLib:Window(Settings)
 	dividerInteract.BorderSizePixel = 0
 	dividerInteract.FontFace = Font.new("rbxasset://fonts/families/SourceSansPro.json")
 	dividerInteract.Position = UDim2.fromScale(0.5, 0)
-	dividerInteract.Size = UDim2.new(1, 6, 1, 0)
+	dividerInteract.Size = UDim2.new(1, 14, 1, 0)
 	dividerInteract.Text = ""
 	dividerInteract.TextColor3 = Color3.fromRGB(0, 0, 0)
 	dividerInteract.TextSize = 14
@@ -689,11 +689,9 @@ function MacLib:Window(Settings)
 	content.Size = UDim2.new(0, (base.AbsoluteSize.X - sidebar.AbsoluteSize.X), 1, 0)
 
 	local resizingContent = false
-	local defaultSidebarWidth = sidebar.AbsoluteSize.X
 	local initialMouseX, initialSidebarWidth
 	local snapRange = 20
 	local minSidebarWidth = 107
-	local maxSidebarWidth = base.AbsoluteSize.X - minSidebarWidth
 
 	local TweenSettings = {
 		DefaultTransparency = 0.9,
@@ -731,6 +729,9 @@ function MacLib:Window(Settings)
 		if resizingContent and input.UserInputType == Enum.UserInputType.MouseMovement then
 			local deltaX = UserInputService:GetMouseLocation().X - initialMouseX
 			local newSidebarWidth = initialSidebarWidth + deltaX
+			
+			local defaultSidebarWidth = base.AbsoluteSize.X * 0.325
+			local maxSidebarWidth = base.AbsoluteSize.X - minSidebarWidth
 
 			if math.abs(newSidebarWidth - defaultSidebarWidth) < snapRange then
 				newSidebarWidth = defaultSidebarWidth
