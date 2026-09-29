@@ -100,8 +100,8 @@ local Window = MacLib:Window({
     Keybind = Enum.KeyCode.RightControl,
     AccentColor = Color3.fromRGB(29, 235, 169),
     WindowControlSize = 12,
-    Transparency = 0.25,
-    AcrylicBlur = true,
+    Transparency = 0.2,
+    AcrylicBlur = false,
 })
 
 Window:GlobalSetting({ Name = "UI Blur", Default = Window:GetAcrylicBlurState(), Callback = function(bool) Window:SetAcrylicBlurState(bool) end })
@@ -305,7 +305,7 @@ sections.SettingsMain:Slider({
 sections.SettingsMain:Slider({
     Name = "UI Transparency",
     Description = "Adjust the transparency level of the interface.",
-    Default = 25,
+    Default = 20,
     Minimum = 0,
     Maximum = 80,
     DisplayMethod = "%",
@@ -316,6 +316,24 @@ sections.SettingsMain:Slider({
         end
     end
 }, "UITransparency")
+
+sections.SettingsMain:Button({
+    Name = "คืนค่าเริ่มต้น (Reset to Defaults)",
+    Description = "รีเซ็ตการตั้งค่า UI ทั้งหมดกลับเป็นค่าเริ่มต้น",
+    Callback = function()
+        if MacLib.Options.MenuKeybind then MacLib.Options.MenuKeybind:SetKey(Enum.KeyCode.RightControl) end
+        if MacLib.Options.AccentColor then MacLib.Options.AccentColor:SetColor(Color3.fromRGB(29, 235, 169)) end
+        if MacLib.Options.UIScale then MacLib.Options.UIScale:SetValue(100) end
+        if MacLib.Options.UITransparency then MacLib.Options.UITransparency:SetValue(20) end
+        if Window and Window.SetAcrylicBlurState then Window:SetAcrylicBlurState(false) end
+        if Window and Window.SetNotificationsState then Window:SetNotificationsState(true) end
+        Window:Notify({
+            Title = "Settings",
+            Description = "คืนค่าการตั้งค่า UI เป็นค่าเริ่มต้นแล้ว",
+            Lifetime = 3
+        })
+    end
+})
 
 -- ==============================================================================
 --  Config & Init

@@ -189,7 +189,7 @@ function MacLib:Window(Settings)
 	notificationsUIPadding.PaddingTop = UDim.new(0, 10)
 	notificationsUIPadding.Parent = notifications
 
-	local currentTransparency = Settings.BackgroundTransparency or Settings.Transparency or (Settings.AcrylicBlur ~= false and 0.25 or 0.15)
+	local currentTransparency = Settings.BackgroundTransparency or Settings.Transparency or 0.2
 	if typeof(currentTransparency) == "number" and currentTransparency > 1 then
 		currentTransparency = currentTransparency / 100
 	end
@@ -2035,28 +2035,32 @@ function MacLib:Window(Settings)
 			})
 		}
 
-		local function Toggle(State)
+		local function Toggle(State, instant)
 			if not State then
-				tweens.checkOut:Play()
-				tweens.nameOut:Play()
-				checkmark:GetPropertyChangedSignal("AbsoluteSize"):Connect(function()
-					if checkmark.AbsoluteSize.X <= 0 then
-						checkmark.TextTransparency = 1
-					end
-				end)
+				if instant then
+					checkmark.Size = UDim2.new(checkmark.Size.X.Scale, tweensettings.checkSizeDecrease, checkmark.Size.Y.Scale, checkmark.Size.Y.Offset)
+					settingName.TextTransparency = tweensettings.transparencyOut
+					checkmark.TextTransparency = 1
+				else
+					tweens.checkOut:Play()
+					tweens.nameOut:Play()
+					checkmark.TextTransparency = 1
+				end
 			else
-				tweens.checkIn:Play()
-				tweens.nameIn:Play()
-				checkmark:GetPropertyChangedSignal("AbsoluteSize"):Connect(function()
-					if checkmark.AbsoluteSize.X > 0 then
-						checkmark.TextTransparency = 0
-					end
-				end)
+				if instant then
+					checkmark.Size = UDim2.new(checkmark.Size.X.Scale, tweensettings.checkSizeIncrease, checkmark.Size.Y.Scale, checkmark.Size.Y.Offset)
+					settingName.TextTransparency = tweensettings.transparencyIn
+					checkmark.TextTransparency = 0
+				else
+					tweens.checkIn:Play()
+					tweens.nameIn:Play()
+					checkmark.TextTransparency = 0
+				end
 			end
 		end
 
 		local toggled = Settings.Default
-		Toggle(toggled)
+		Toggle(toggled, true)
 
 		globalSetting.MouseButton1Click:Connect(function()
 			toggled = not toggled
@@ -6471,7 +6475,7 @@ function MacLib:Window(Settings)
 
 	function WindowFunctions:SetAcrylicBlurState(State)
 		acrylicBlur = State
-		base.BackgroundTransparency = State and currentTransparency or 0
+		base.BackgroundTransparency = currentTransparency
 	end
 
 	function WindowFunctions:GetAcrylicBlurState()
