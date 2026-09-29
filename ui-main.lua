@@ -396,6 +396,15 @@ function MacLib:Window(Settings)
 		end
 
 		applyState(button, isEnabled)
+
+		if isEnabled then
+			button.MouseEnter:Connect(function()
+				Tween(button, TweenInfo.new(0.15, Enum.EasingStyle.Quad), { Size = UDim2.fromOffset(10, 10) }):Play()
+			end)
+			button.MouseLeave:Connect(function()
+				Tween(button, TweenInfo.new(0.15, Enum.EasingStyle.Quad), { Size = windowControlSettings.sizes.enabled }):Play()
+			end)
+		end
 	end
 
 	controls.Parent = windowControls
@@ -781,7 +790,12 @@ function MacLib:Window(Settings)
 
 		if shouldCollapse then
 			for _, tabData in ipairs(registeredTabs) do
-				if tabData.name then tabData.name.Visible = false end
+				if tabData.name then
+					Tween(tabData.name, TweenInfo.new(0.15, Enum.EasingStyle.Quad), { TextTransparency = 1 }):Play()
+					task.delay(0.15, function()
+						if isSidebarCollapsed and tabData.name then tabData.name.Visible = false end
+					end)
+				end
 				if tabData.padding then
 					tabData.padding.PaddingLeft = UDim.new(0, 0)
 					tabData.padding.PaddingRight = UDim.new(0, 0)
@@ -790,11 +804,11 @@ function MacLib:Window(Settings)
 					tabData.layout.HorizontalAlignment = Enum.HorizontalAlignment.Center
 				end
 				if tabData.button then
-					tabData.button.Size = UDim2.new(0, 36, 0, 36)
+					Tween(tabData.button, TweenInfo.new(0.2, Enum.EasingStyle.Quad), { Size = UDim2.new(0, 36, 0, 36) }):Play()
 				end
 			end
 			for _, div in ipairs(registeredDividers) do
-				div.Size = UDim2.new(0, 30, 0, 1)
+				Tween(div, TweenInfo.new(0.2, Enum.EasingStyle.Quad), { Size = UDim2.new(0, 30, 0, 1) }):Play()
 			end
 			if userAndDisplayFrame then userAndDisplayFrame.Visible = false end
 			if informationGroupUIPadding then informationGroupUIPadding.PaddingLeft = UDim.new(0, 0) end
@@ -813,7 +827,10 @@ function MacLib:Window(Settings)
 			if uIListLayout then uIListLayout.HorizontalAlignment = Enum.HorizontalAlignment.Center end
 		else
 			for _, tabData in ipairs(registeredTabs) do
-				if tabData.name then tabData.name.Visible = true end
+				if tabData.name then
+					tabData.name.Visible = true
+					Tween(tabData.name, TweenInfo.new(0.2, Enum.EasingStyle.Quad), { TextTransparency = 0.5 }):Play()
+				end
 				if tabData.padding then
 					tabData.padding.PaddingLeft = UDim.new(0, 16)
 					tabData.padding.PaddingRight = UDim.new(0, 16)
@@ -822,11 +839,11 @@ function MacLib:Window(Settings)
 					tabData.layout.HorizontalAlignment = Enum.HorizontalAlignment.Left
 				end
 				if tabData.button then
-					tabData.button.Size = UDim2.new(1, -21, 0, 32)
+					Tween(tabData.button, TweenInfo.new(0.2, Enum.EasingStyle.Quad), { Size = UDim2.new(1, -21, 0, 32) }):Play()
 				end
 			end
 			for _, div in ipairs(registeredDividers) do
-				div.Size = UDim2.new(1, -21, 0, 1)
+				Tween(div, TweenInfo.new(0.2, Enum.EasingStyle.Quad), { Size = UDim2.new(1, -21, 0, 1) }):Play()
 			end
 			if userAndDisplayFrame then userAndDisplayFrame.Visible = true end
 			if informationGroupUIPadding then informationGroupUIPadding.PaddingLeft = UDim.new(0, 25) end
@@ -989,7 +1006,8 @@ function MacLib:Window(Settings)
 
 	local function update(input)
 		local delta = input.Position - dragStart
-		base.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X, startPos.Y.Scale, startPos.Y.Offset + delta.Y)
+		local targetPos = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X, startPos.Y.Scale, startPos.Y.Offset + delta.Y)
+		Tween(base, TweenInfo.new(0.04, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {Position = targetPos}):Play()
 	end
 
 	local function onDragStart(input)
@@ -1760,7 +1778,13 @@ function MacLib:Window(Settings)
 				tabSwitcher.Size = UDim2.new(0, 36, 0, 36)
 			end
 
-			local elements1 = Instance.new("Frame")
+			local elements1
+			local okCG, cgInstance = pcall(function() return Instance.new("CanvasGroup") end)
+			if okCG and cgInstance then
+				elements1 = cgInstance
+			else
+				elements1 = Instance.new("Frame")
+			end
 			elements1.Name = "Elements"
 			elements1.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
 			elements1.BackgroundTransparency = 1
@@ -1769,6 +1793,25 @@ function MacLib:Window(Settings)
 			elements1.Position = UDim2.fromOffset(0, 63)
 			elements1.Size = UDim2.new(1, 0, 1, -63)
 			elements1.ClipsDescendants = true
+
+			tabSwitcher.MouseEnter:Connect(function()
+				if not currentTabInstance or currentTabInstance ~= elements1 then
+					Tween(tabSwitcher, TweenInfo.new(0.2, Enum.EasingStyle.Quad), { BackgroundTransparency = 0.97 }):Play()
+					Tween(tabSwitcherName, TweenInfo.new(0.2, Enum.EasingStyle.Quad), { TextTransparency = 0.3 }):Play()
+					if tabImage then
+						Tween(tabImage, TweenInfo.new(0.2, Enum.EasingStyle.Quad), { ImageTransparency = 0.3 }):Play()
+					end
+				end
+			end)
+			tabSwitcher.MouseLeave:Connect(function()
+				if not currentTabInstance or currentTabInstance ~= elements1 then
+					Tween(tabSwitcher, TweenInfo.new(0.2, Enum.EasingStyle.Quad), { BackgroundTransparency = 1 }):Play()
+					Tween(tabSwitcherName, TweenInfo.new(0.2, Enum.EasingStyle.Quad), { TextTransparency = 0.5 }):Play()
+					if tabImage then
+						Tween(tabImage, TweenInfo.new(0.2, Enum.EasingStyle.Quad), { ImageTransparency = 0.5 }):Play()
+					end
+				end
+			end)
 
 			local elementsUIPadding = Instance.new("UIPadding")
 			elementsUIPadding.Name = "ElementsUIPadding"
@@ -1954,7 +1997,7 @@ function MacLib:Window(Settings)
 						DefaultTransparency = 0.5,
 						HoverTransparency = 0.3,
 
-						EasingStyle = Enum.EasingStyle.Sine
+						EasingStyle = Enum.EasingStyle.Quad
 					}
 
 					local function ChangeState(State)
@@ -1986,6 +2029,13 @@ function MacLib:Window(Settings)
 					end)
 					buttonInteract.MouseLeave:Connect(function()
 						ChangeState("Idle")
+					end)
+					buttonInteract.MouseButton1Down:Connect(function()
+						Tween(buttonInteract, TweenInfo.new(0.08, Enum.EasingStyle.Quad), { TextTransparency = 0.1 }):Play()
+						Tween(buttonImage, TweenInfo.new(0.08, Enum.EasingStyle.Quad), { ImageTransparency = 0.1 }):Play()
+					end)
+					buttonInteract.MouseButton1Up:Connect(function()
+						ChangeState("Hover")
 					end)
 
 					buttonInteract.MouseButton1Click:Connect(Callback)
@@ -2078,7 +2128,7 @@ function MacLib:Window(Settings)
 					local togglerHeadTransparency = {Enabled = 0, Disabled = 0.85}
 
 					local TweenSettings = {
-						Info = TweenInfo.new(0.15, Enum.EasingStyle.Quad),
+						Info = TweenInfo.new(0.22, Enum.EasingStyle.Quint, Enum.EasingDirection.Out),
 
 						EnabledPosition = UDim2.new(1, 0, 0.5, 0),
 						DisabledPosition = UDim2.new(0.5, 0, 0.5, 0),
@@ -2117,6 +2167,15 @@ function MacLib:Window(Settings)
 					end
 
 					toggle1.MouseButton1Click:Connect(Toggle)
+
+					toggle1.MouseEnter:Connect(function()
+						Tween(toggleName, TweenInfo.new(0.2, Enum.EasingStyle.Quad), { TextTransparency = 0.3 }):Play()
+						Tween(toggle1, TweenInfo.new(0.2, Enum.EasingStyle.Quad), { ImageColor3 = Color3.fromRGB(110, 109, 109) }):Play()
+					end)
+					toggle1.MouseLeave:Connect(function()
+						Tween(toggleName, TweenInfo.new(0.2, Enum.EasingStyle.Quad), { TextTransparency = 0.5 }):Play()
+						Tween(toggle1, TweenInfo.new(0.2, Enum.EasingStyle.Quad), { ImageColor3 = Color3.fromRGB(87, 86, 86) }):Play()
+					end)
 
 					function ToggleFunctions:Toggle()
 						Toggle()
@@ -2304,7 +2363,11 @@ function MacLib:Window(Settings)
 						end
 
 						local pos = UDim2.new(posXScale, 0, 0.5, 0)
-						sliderHead.Position = pos
+						if dragging then
+							Tween(sliderHead, TweenInfo.new(0.04, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), { Position = pos }):Play()
+						else
+							Tween(sliderHead, TweenInfo.new(0.2, Enum.EasingStyle.Quint, Enum.EasingDirection.Out), { Position = pos }):Play()
+						end
 
 						finalValue = posXScale * (SliderFunctions.Settings.Maximum - SliderFunctions.Settings.Minimum) + Settings.Minimum
 
@@ -2323,18 +2386,36 @@ function MacLib:Window(Settings)
 
 					SetValue(SliderFunctions.Settings.Default, true)
 
-					sliderHead.InputBegan:Connect(function(input)
+					local function onSliderStart(input)
 						if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
 							dragging = true
 							SetValue(input)
 						end
+					end
+
+					sliderHead.InputBegan:Connect(onSliderStart)
+					sliderBar.InputBegan:Connect(onSliderStart)
+
+					sliderHead.MouseEnter:Connect(function()
+						Tween(sliderHead, TweenInfo.new(0.15, Enum.EasingStyle.Quad), { Size = UDim2.fromOffset(14, 14) }):Play()
+						Tween(sliderName, TweenInfo.new(0.15, Enum.EasingStyle.Quad), { TextTransparency = 0.3 }):Play()
+					end)
+					sliderHead.MouseLeave:Connect(function()
+						if not dragging then
+							Tween(sliderHead, TweenInfo.new(0.15, Enum.EasingStyle.Quad), { Size = UDim2.fromOffset(12, 12) }):Play()
+							Tween(sliderName, TweenInfo.new(0.15, Enum.EasingStyle.Quad), { TextTransparency = 0.5 }):Play()
+						end
 					end)
 
-					sliderHead.InputEnded:Connect(function(input)
+					UserInputService.InputEnded:Connect(function(input)
 						if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
-							dragging = false
-							if SliderFunctions.Settings.onInputComplete then
-								SliderFunctions.Settings.onInputComplete(finalValue)
+							if dragging then
+								dragging = false
+								Tween(sliderHead, TweenInfo.new(0.15, Enum.EasingStyle.Quad), { Size = UDim2.fromOffset(12, 12) }):Play()
+								Tween(sliderName, TweenInfo.new(0.15, Enum.EasingStyle.Quad), { TextTransparency = 0.5 }):Play()
+								if SliderFunctions.Settings.onInputComplete then
+									SliderFunctions.Settings.onInputComplete(finalValue)
+								end
 							end
 						end
 					end)
@@ -4904,37 +4985,76 @@ function MacLib:Window(Settings)
 			end
 
 			local function SelectCurrentTab()
-				local easetime = 0.15
+				local easetime = 0.2
+				local oldTab = currentTabInstance
+				local newTab = tabs[tabSwitcher].tabContent
 
-				if currentTabInstance then
-					currentTabInstance.Parent = nil
+				if oldTab and oldTab ~= newTab then
+					if oldTab:IsA("CanvasGroup") then
+						Tween(oldTab, TweenInfo.new(0.12, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
+							GroupTransparency = 1,
+							Position = UDim2.fromOffset(0, 56)
+						}):Play()
+						task.delay(0.12, function()
+							if oldTab ~= currentTabInstance then
+								oldTab.Parent = nil
+							end
+						end)
+					else
+						oldTab.Parent = nil
+					end
 				end
 
 				for i, tabInfo in pairs(tabs) do
-					Tween(i, TweenInfo.new(easetime, Enum.EasingStyle.Sine), {
-						BackgroundTransparency = (i == tabSwitcher and 0.98 or 1)
+					local isSelected = (i == tabSwitcher)
+					Tween(i, TweenInfo.new(easetime, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
+						BackgroundTransparency = (isSelected and 0.95 or 1)
 					}):Play()
 
 					if tabInfo.tabStroke then
-						Tween(tabInfo.tabStroke, TweenInfo.new(easetime, Enum.EasingStyle.Sine), {
-							Transparency = (i == tabSwitcher and 0.95 or 1)
+						Tween(tabInfo.tabStroke, TweenInfo.new(easetime, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
+							Transparency = (isSelected and 0.9 or 1)
 						}):Play()
 					end
 					if tabInfo.switcherImage then
-						Tween(tabInfo.switcherImage, TweenInfo.new(easetime, Enum.EasingStyle.Sine), {
-							ImageTransparency = (i == tabSwitcher and 0.1 or 0.5)
+						Tween(tabInfo.switcherImage, TweenInfo.new(easetime, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
+							ImageTransparency = (isSelected and 0.1 or 0.5)
 						}):Play()
 					end
 					if tabInfo.switcherName then
-						Tween(tabInfo.switcherName, TweenInfo.new(easetime, Enum.EasingStyle.Sine), {
-							TextTransparency = (i == tabSwitcher and 0.1 or 0.5)
+						Tween(tabInfo.switcherName, TweenInfo.new(easetime, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
+							TextTransparency = (isSelected and 0.1 or 0.5)
 						}):Play()
 					end
 				end
 
-				tabs[tabSwitcher].tabContent.Parent = content
-				currentTabInstance = tabs[tabSwitcher].tabContent
-				currentTab.Text = Settings.Name
+				newTab.Parent = content
+				currentTabInstance = newTab
+
+				if newTab:IsA("CanvasGroup") then
+					newTab.GroupTransparency = 1
+					newTab.Position = UDim2.fromOffset(0, 72)
+					Tween(newTab, TweenInfo.new(0.25, Enum.EasingStyle.Quint, Enum.EasingDirection.Out), {
+						GroupTransparency = 0,
+						Position = UDim2.fromOffset(0, 63)
+					}):Play()
+				else
+					newTab.Position = UDim2.fromOffset(0, 63)
+				end
+
+				if currentTab.Text ~= Settings.Name then
+					Tween(currentTab, TweenInfo.new(0.08, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
+						TextTransparency = 1
+					}):Play()
+					task.delay(0.08, function()
+						currentTab.Text = Settings.Name
+						Tween(currentTab, TweenInfo.new(0.18, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
+							TextTransparency = 0.5
+						}):Play()
+					end)
+				else
+					currentTab.Text = Settings.Name
+				end
 			end
 
 			tabSwitcher.MouseButton1Click:Connect(function()
@@ -5573,13 +5693,34 @@ function MacLib:Window(Settings)
 		end
 	end
 
+	local isTogglingWindowState = false
 	function WindowFunctions:SetState(State)
+		if isTogglingWindowState then return end
 		windowState = State
-		base.Visible = State
-		if not State and closedUIStyle == "Breadcrumb" then
-			breadcrumb.Visible = true
+		if State then
+			base.Visible = true
+			if closedUIStyle == "Breadcrumb" then
+				breadcrumb.Visible = false
+			end
+			baseUIScale.Scale = 0.92
+			Tween(baseUIScale, TweenInfo.new(0.28, Enum.EasingStyle.Back, Enum.EasingDirection.Out), {
+				Scale = 1
+			}):Play()
 		else
-			breadcrumb.Visible = false
+			isTogglingWindowState = true
+			local outTween = Tween(baseUIScale, TweenInfo.new(0.18, Enum.EasingStyle.Quad, Enum.EasingDirection.In), {
+				Scale = 0.92
+			})
+			outTween:Play()
+			outTween.Completed:Connect(function()
+				if not windowState then
+					base.Visible = false
+					if closedUIStyle == "Breadcrumb" then
+						breadcrumb.Visible = true
+					end
+				end
+				isTogglingWindowState = false
+			end)
 		end
 	end
 	
