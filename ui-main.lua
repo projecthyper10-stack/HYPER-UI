@@ -5973,7 +5973,7 @@ function MacLib:Window(Settings)
 			Enum.FontWeight.Medium,
 			Enum.FontStyle.Normal
 		)
-		notificationDescription.Text = Settings.Description
+		notificationDescription.Text = Settings.Description or Settings.Desc or ""
 		notificationDescription.TextColor3 = Color3.fromRGB(255, 255, 255)
 		notificationDescription.TextSize = 11
 		notificationDescription.TextTransparency = 0.5
@@ -6071,7 +6071,7 @@ function MacLib:Window(Settings)
 		local AnimateNotification = task.spawn(function()
 			tweens.In:Play()
 
-			Settings.Lifetime = Settings.Lifetime or 3
+			Settings.Lifetime = Settings.Lifetime or Settings.Time or 3
 
 			if Settings.Lifetime ~= 0 then
 				task.wait(Settings.Lifetime)
