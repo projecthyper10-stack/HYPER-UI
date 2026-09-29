@@ -107,12 +107,7 @@ Window:GlobalSetting({ Name = "Notifications", Default = Window:GetNotifications
 
 local tabGroups = {
     Main       = Window:TabGroup(),
-    AutoFarm   = Window:TabGroup(),
-    Combat     = Window:TabGroup(),
-    Character  = Window:TabGroup(),
-    Training   = Window:TabGroup(),
-    Navigation = Window:TabGroup(),
-    Farms      = Window:TabGroup(),
+    Features   = Window:TabGroup(),
     SettingsGroup = Window:TabGroup(),
 }
 
@@ -122,13 +117,13 @@ local tabGroups = {
 
 local tabs = {
     Home       = tabGroups.Main:Tab({ Name = "Home",       Icon = "lucide-home" }),
-    Farming    = tabGroups.AutoFarm:Tab({ Name = "Farming",    Icon = "lucide-wheat" }),
-    Loadout    = tabGroups.Combat:Tab({ Name = "Loadout",      Icon = "lucide-shield" }),
-    Movement   = tabGroups.Character:Tab({ Name = "Movement",  Icon = "lucide-person-standing" }),
-    Breathing  = tabGroups.Training:Tab({ Name = "Breathing",  Icon = "lucide-wind" }),
-    DemonArt   = tabGroups.Training:Tab({ Name = "Demon Art",  Icon = "lucide-flame" }),
-    Travel     = tabGroups.Navigation:Tab({ Name = "Travel",   Icon = "lucide-map-pin" }),
-    Schematics = tabGroups.Farms:Tab({ Name = "Schematics",    Icon = "lucide-clipboard" }),
+    Farming    = tabGroups.Features:Tab({ Name = "Farming",    Icon = "lucide-wheat" }),
+    Loadout    = tabGroups.Features:Tab({ Name = "Loadout",      Icon = "lucide-shield" }),
+    Movement   = tabGroups.Features:Tab({ Name = "Movement",  Icon = "lucide-person-standing" }),
+    Breathing  = tabGroups.Features:Tab({ Name = "Breathing",  Icon = "lucide-wind" }),
+    DemonArt   = tabGroups.Features:Tab({ Name = "Demon Art",  Icon = "lucide-flame" }),
+    Travel     = tabGroups.Features:Tab({ Name = "Travel",   Icon = "lucide-map-pin" }),
+    Schematics = tabGroups.Features:Tab({ Name = "Schematics",    Icon = "lucide-clipboard" }),
     UISettings = tabGroups.SettingsGroup:Tab({ Name = "UI Settings", Icon = "lucide-settings" }),
 }
 

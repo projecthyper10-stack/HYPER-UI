@@ -727,7 +727,7 @@ function MacLib:Window(Settings)
 
 	local tabSwitchersScrollingFrameUIListLayout = Instance.new("UIListLayout")
 	tabSwitchersScrollingFrameUIListLayout.Name = "TabSwitchersScrollingFrameUIListLayout"
-	tabSwitchersScrollingFrameUIListLayout.Padding = UDim.new(0, 17)
+	tabSwitchersScrollingFrameUIListLayout.Padding = UDim.new(0, 6)
 	tabSwitchersScrollingFrameUIListLayout.SortOrder = Enum.SortOrder.LayoutOrder
 	tabSwitchersScrollingFrameUIListLayout.Parent = tabSwitchersScrollingFrame
 
@@ -804,14 +804,14 @@ function MacLib:Window(Settings)
 			for _, tabData in ipairs(registeredTabs) do
 				if tabData.name then tabData.name.Visible = true end
 				if tabData.padding then
-					tabData.padding.PaddingLeft = UDim.new(0, 24)
-					tabData.padding.PaddingRight = UDim.new(0, 35)
+					tabData.padding.PaddingLeft = UDim.new(0, 16)
+					tabData.padding.PaddingRight = UDim.new(0, 16)
 				end
 				if tabData.layout then
 					tabData.layout.HorizontalAlignment = Enum.HorizontalAlignment.Left
 				end
 				if tabData.button then
-					tabData.button.Size = UDim2.new(1, -21, 0, 40)
+					tabData.button.Size = UDim2.new(1, -21, 0, 32)
 				end
 			end
 			for _, div in ipairs(registeredDividers) do
@@ -1628,14 +1628,14 @@ function MacLib:Window(Settings)
 
 		local uIListLayout1 = Instance.new("UIListLayout")
 		uIListLayout1.Name = "UIListLayout"
-		uIListLayout1.Padding = UDim.new(0, 15)
+		uIListLayout1.Padding = UDim.new(0, 4)
 		uIListLayout1.HorizontalAlignment = Enum.HorizontalAlignment.Center
 		uIListLayout1.SortOrder = Enum.SortOrder.LayoutOrder
 		uIListLayout1.Parent = sectionTabSwitchers
 
 		local uIPadding1 = Instance.new("UIPadding")
 		uIPadding1.Name = "UIPadding"
-		uIPadding1.PaddingBottom = UDim.new(0, 15)
+		uIPadding1.PaddingBottom = UDim.new(0, 6)
 		uIPadding1.Parent = sectionTabSwitchers
 
 		sectionTabSwitchers.Parent = tabGroup
@@ -1656,7 +1656,7 @@ function MacLib:Window(Settings)
 			tabSwitcher.BorderColor3 = Color3.fromRGB(0, 0, 0)
 			tabSwitcher.BorderSizePixel = 0
 			tabSwitcher.Position = UDim2.fromScale(0.5, 0)
-			tabSwitcher.Size = UDim2.new(1, -21, 0, 40)
+			tabSwitcher.Size = UDim2.new(1, -21, 0, 32)
 
 			tabIndex += 1
 			tabSwitcher.LayoutOrder = tabIndex
@@ -1722,8 +1722,8 @@ function MacLib:Window(Settings)
 
 			local tabSwitcherUIPadding = Instance.new("UIPadding")
 			tabSwitcherUIPadding.Name = "TabSwitcherUIPadding"
-			tabSwitcherUIPadding.PaddingLeft = UDim.new(0, 24)
-			tabSwitcherUIPadding.PaddingRight = UDim.new(0, 35)
+			tabSwitcherUIPadding.PaddingLeft = UDim.new(0, 16)
+			tabSwitcherUIPadding.PaddingRight = UDim.new(0, 16)
 			tabSwitcherUIPadding.PaddingTop = UDim.new(0, 1)
 			tabSwitcherUIPadding.Parent = tabSwitcher
 
