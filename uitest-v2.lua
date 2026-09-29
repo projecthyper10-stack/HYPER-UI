@@ -111,9 +111,11 @@ Window:GlobalSetting({ Name = "Notifications", Default = Window:GetNotifications
 -- ==============================================================================
 
 local tabGroups = {
-    Main       = Window:TabGroup(),
-    Features   = Window:TabGroup(),
-    SettingsGroup = Window:TabGroup(),
+    Main       = Window:TabGroup("General"),
+    Character  = Window:TabGroup("Character"),
+    Combat     = Window:TabGroup("Combat"),
+    World      = Window:TabGroup("World"),
+    SettingsGroup = Window:TabGroup("Settings"),
 }
 
 -- ==============================================================================
@@ -122,13 +124,13 @@ local tabGroups = {
 
 local tabs = {
     Home       = tabGroups.Main:Tab({ Name = "Home",       Icon = "lucide-home" }),
-    Farming    = tabGroups.Features:Tab({ Name = "Farming",    Icon = "lucide-swords" }),
-    Loadout    = tabGroups.Features:Tab({ Name = "Loadout",      Icon = "lucide-shield" }),
-    Movement   = tabGroups.Features:Tab({ Name = "Movement",  Icon = "lucide-person-standing" }),
-    Breathing  = tabGroups.Features:Tab({ Name = "Breathing",  Icon = "lucide-wind" }),
-    DemonArt   = tabGroups.Features:Tab({ Name = "Demon Art",  Icon = "lucide-flame" }),
-    Travel     = tabGroups.Features:Tab({ Name = "Travel",   Icon = "lucide-map-pin" }),
-    Schematics = tabGroups.Features:Tab({ Name = "Schematics",    Icon = "lucide-clipboard" }),
+    Movement   = tabGroups.Character:Tab({ Name = "Movement",  Icon = "lucide-person-standing" }),
+    Loadout    = tabGroups.Character:Tab({ Name = "Loadout",      Icon = "lucide-shield" }),
+    Farming    = tabGroups.Combat:Tab({ Name = "Farming",    Icon = "lucide-swords" }),
+    Breathing  = tabGroups.Combat:Tab({ Name = "Breathing",  Icon = "lucide-wind" }),
+    DemonArt   = tabGroups.Combat:Tab({ Name = "Demon Art",  Icon = "lucide-flame" }),
+    Travel     = tabGroups.World:Tab({ Name = "Travel",   Icon = "lucide-map-pin" }),
+    Schematics = tabGroups.World:Tab({ Name = "Schematics",    Icon = "lucide-clipboard" }),
     UISettings = tabGroups.SettingsGroup:Tab({ Name = "UI Settings", Icon = "lucide-settings" }),
 }
 

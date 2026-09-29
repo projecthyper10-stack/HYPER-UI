@@ -814,6 +814,7 @@ function MacLib:Window(Settings)
 
 	local registeredTabs = {}
 	local registeredDividers = {}
+	local registeredCategoryHeaders = {}
 	local isSidebarCollapsed = false
 
 	local function UpdateSidebarCollapse(width)
@@ -842,6 +843,12 @@ function MacLib:Window(Settings)
 			end
 			for _, div in ipairs(registeredDividers) do
 				Tween(div, TweenInfo.new(0.2, Enum.EasingStyle.Quad), { Size = UDim2.new(0, 30, 0, 1) }):Play()
+			end
+			for _, cat in ipairs(registeredCategoryHeaders) do
+				Tween(cat, TweenInfo.new(0.15, Enum.EasingStyle.Quad), { TextTransparency = 1 }):Play()
+				task.delay(0.15, function()
+					if isSidebarCollapsed and cat then cat.Visible = false end
+				end)
 			end
 			if userAndDisplayFrame then userAndDisplayFrame.Visible = false end
 			if informationGroupUIPadding then informationGroupUIPadding.PaddingLeft = UDim.new(0, 0) end
@@ -878,6 +885,12 @@ function MacLib:Window(Settings)
 			end
 			for _, div in ipairs(registeredDividers) do
 				Tween(div, TweenInfo.new(0.2, Enum.EasingStyle.Quad), { Size = UDim2.new(1, -21, 0, 1) }):Play()
+			end
+			for _, cat in ipairs(registeredCategoryHeaders) do
+				if cat.Text ~= "" then
+					cat.Visible = true
+					Tween(cat, TweenInfo.new(0.2, Enum.EasingStyle.Quad), { TextTransparency = 0.55 }):Play()
+				end
 			end
 			if userAndDisplayFrame then userAndDisplayFrame.Visible = true end
 			if informationGroupUIPadding then informationGroupUIPadding.PaddingLeft = UDim.new(0, 4) end
@@ -1675,8 +1688,14 @@ function MacLib:Window(Settings)
 		return GlobalSettingFunctions
 	end
 
-	function WindowFunctions:TabGroup()
+	function WindowFunctions:TabGroup(GroupSettings)
 		local SectionFunctions = {}
+		local groupName = nil
+		if typeof(GroupSettings) == "string" then
+			groupName = GroupSettings
+		elseif typeof(GroupSettings) == "table" then
+			groupName = GroupSettings.Name or GroupSettings.Title
+		end
 
 		local tabGroup = Instance.new("Frame")
 		tabGroup.Name = "Section"
@@ -1685,31 +1704,58 @@ function MacLib:Window(Settings)
 		tabGroup.BackgroundTransparency = 1
 		tabGroup.BorderColor3 = Color3.fromRGB(0, 0, 0)
 		tabGroup.BorderSizePixel = 0
-		tabGroup.Size = UDim2.fromScale(1, 0)
+		tabGroup.Size = UDim2.new(1, 0, 0, 0)
 
-		local divider3 = Instance.new("Frame")
-		divider3.Name = "Divider"
-		divider3.AnchorPoint = Vector2.new(0.5, 1)
-		divider3.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
-		divider3.BackgroundTransparency = 0.9
-		divider3.BorderColor3 = Color3.fromRGB(0, 0, 0)
-		divider3.BorderSizePixel = 0
-		divider3.Position = UDim2.fromScale(0.5, 1)
-		divider3.Size = UDim2.new(1, -21, 0, 1)
-		divider3.Parent = tabGroup
+		local tabGroupLayout = Instance.new("UIListLayout")
+		tabGroupLayout.Name = "TabGroupLayout"
+		tabGroupLayout.FillDirection = Enum.FillDirection.Vertical
+		tabGroupLayout.SortOrder = Enum.SortOrder.LayoutOrder
+		tabGroupLayout.HorizontalAlignment = Enum.HorizontalAlignment.Center
+		tabGroupLayout.Padding = UDim.new(0, 4)
+		tabGroupLayout.Parent = tabGroup
 
-		table.insert(registeredDividers, divider3)
-		if isSidebarCollapsed then
-			divider3.Size = UDim2.new(0, 30, 0, 1)
-		end
+		local categoryHeader = Instance.new("TextLabel")
+		categoryHeader.Name = "CategoryHeader"
+		categoryHeader.FontFace = Font.new(
+			assets.interFont,
+			Enum.FontWeight.SemiBold,
+			Enum.FontStyle.Normal
+		)
+		categoryHeader.Text = groupName or ""
+		categoryHeader.TextColor3 = Color3.fromRGB(255, 255, 255)
+		categoryHeader.TextSize = 12
+		categoryHeader.TextTransparency = 0.55
+		categoryHeader.TextTruncate = Enum.TextTruncate.SplitWord
+		categoryHeader.TextXAlignment = Enum.TextXAlignment.Left
+		categoryHeader.TextYAlignment = Enum.TextYAlignment.Center
+		categoryHeader.AutomaticSize = Enum.AutomaticSize.Y
+		categoryHeader.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+		categoryHeader.BackgroundTransparency = 1
+		categoryHeader.BorderColor3 = Color3.fromRGB(0, 0, 0)
+		categoryHeader.BorderSizePixel = 0
+		categoryHeader.Size = UDim2.new(1, -21, 0, (groupName and groupName ~= "") and 18 or 0)
+		categoryHeader.LayoutOrder = 1
+		categoryHeader.Visible = (groupName ~= nil and groupName ~= "" and not isSidebarCollapsed)
+
+		local categoryHeaderPadding = Instance.new("UIPadding")
+		categoryHeaderPadding.Name = "CategoryHeaderPadding"
+		categoryHeaderPadding.PaddingLeft = UDim.new(0, 10)
+		categoryHeaderPadding.PaddingTop = UDim.new(0, 4)
+		categoryHeaderPadding.PaddingBottom = UDim.new(0, 2)
+		categoryHeaderPadding.Parent = categoryHeader
+
+		categoryHeader.Parent = tabGroup
+		table.insert(registeredCategoryHeaders, categoryHeader)
 
 		local sectionTabSwitchers = Instance.new("Frame")
 		sectionTabSwitchers.Name = "SectionTabSwitchers"
+		sectionTabSwitchers.AutomaticSize = Enum.AutomaticSize.Y
 		sectionTabSwitchers.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
 		sectionTabSwitchers.BackgroundTransparency = 1
 		sectionTabSwitchers.BorderColor3 = Color3.fromRGB(0, 0, 0)
 		sectionTabSwitchers.BorderSizePixel = 0
-		sectionTabSwitchers.Size = UDim2.fromScale(1, 1)
+		sectionTabSwitchers.Size = UDim2.new(1, 0, 0, 0)
+		sectionTabSwitchers.LayoutOrder = 2
 
 		local uIListLayout1 = Instance.new("UIListLayout")
 		uIListLayout1.Name = "UIListLayout"
@@ -1724,7 +1770,45 @@ function MacLib:Window(Settings)
 		uIPadding1.Parent = sectionTabSwitchers
 
 		sectionTabSwitchers.Parent = tabGroup
+
+		local divider3 = Instance.new("Frame")
+		divider3.Name = "Divider"
+		divider3.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+		divider3.BackgroundTransparency = 0.9
+		divider3.BorderColor3 = Color3.fromRGB(0, 0, 0)
+		divider3.BorderSizePixel = 0
+		divider3.Size = UDim2.new(1, -21, 0, 1)
+		divider3.LayoutOrder = 3
+		divider3.Parent = tabGroup
+
+		local showDivider = true
+		if typeof(GroupSettings) == "table" and GroupSettings.Divider ~= nil then
+			showDivider = GroupSettings.Divider
+		end
+		divider3.Visible = showDivider
+
+		table.insert(registeredDividers, divider3)
+		if isSidebarCollapsed then
+			divider3.Size = UDim2.new(0, 30, 0, 1)
+		end
+
 		tabGroup.Parent = tabSwitchersScrollingFrame
+
+		function SectionFunctions:SetTitle(newTitle)
+			groupName = newTitle
+			categoryHeader.Text = newTitle or ""
+			categoryHeader.Size = UDim2.new(1, -21, 0, (newTitle and newTitle ~= "") and 18 or 0)
+			categoryHeader.Visible = (newTitle ~= nil and newTitle ~= "" and not isSidebarCollapsed)
+		end
+		function SectionFunctions:SetName(newName)
+			SectionFunctions:SetTitle(newName)
+		end
+		function SectionFunctions:GetTitle()
+			return groupName
+		end
+		function SectionFunctions:SetDivider(visible)
+			divider3.Visible = visible
+		end
 
 		function SectionFunctions:Tab(Settings)
 			local TabFunctions = {Settings = Settings}
