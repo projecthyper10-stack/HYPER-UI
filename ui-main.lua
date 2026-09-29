@@ -250,7 +250,7 @@ function MacLib:Window(Settings)
 	exit.TextColor3 = Color3.fromRGB(0, 0, 0)
 	exit.TextSize = 14
 	exit.AutoButtonColor = false
-	exit.BackgroundColor3 = Color3.fromRGB(250, 93, 86)
+	exit.BackgroundColor3 = Color3.fromRGB(255, 95, 86)
 	exit.BorderColor3 = Color3.fromRGB(0, 0, 0)
 	exit.BorderSizePixel = 0
 
@@ -268,7 +268,7 @@ function MacLib:Window(Settings)
 	minimize.TextColor3 = Color3.fromRGB(0, 0, 0)
 	minimize.TextSize = 14
 	minimize.AutoButtonColor = false
-	minimize.BackgroundColor3 = Color3.fromRGB(252, 190, 57)
+	minimize.BackgroundColor3 = Color3.fromRGB(255, 189, 46)
 	minimize.BorderColor3 = Color3.fromRGB(0, 0, 0)
 	minimize.BorderSizePixel = 0
 	minimize.LayoutOrder = 1
@@ -287,7 +287,7 @@ function MacLib:Window(Settings)
 	maximize.TextColor3 = Color3.fromRGB(0, 0, 0)
 	maximize.TextSize = 14
 	maximize.AutoButtonColor = false
-	maximize.BackgroundColor3 = Color3.fromRGB(119, 174, 94)
+	maximize.BackgroundColor3 = Color3.fromRGB(39, 201, 63)
 	maximize.BorderColor3 = Color3.fromRGB(0, 0, 0)
 	maximize.BorderSizePixel = 0
 	maximize.LayoutOrder = 1
@@ -318,9 +318,7 @@ function MacLib:Window(Settings)
 		end
 	end
 
-	applyState(maximize, false)
-
-	local controlsList = {exit, minimize}
+	local controlsList = {exit, minimize, maximize}
 	for _, button in pairs(controlsList) do
 		local buttonName = button.Name
 		local isEnabled = true
@@ -860,6 +858,19 @@ function MacLib:Window(Settings)
 				onDragStart(input)
 			end
 		end)
+		
+		-- Add extra frames for easier dragging
+		local draggableFrames = {information, titleFrame}
+		for _, frame in ipairs(draggableFrames) do
+			if frame then
+				frame.InputBegan:Connect(function(input)
+					if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+						onDragStart(input)
+					end
+				end)
+				frame.InputChanged:Connect(onDragUpdate)
+			end
+		end
 
 		interact.InputChanged:Connect(onDragUpdate)
 
@@ -5335,6 +5346,22 @@ function MacLib:Window(Settings)
 	end)
 
 	minimize.MouseButton1Click:Connect(ToggleMenu)
+	
+	local isMaximized = false
+	local originalSize = Settings.Size or UDim2.fromOffset(868, 650)
+	maximize.MouseButton1Click:Connect(function()
+		isMaximized = not isMaximized
+		if isMaximized then
+			Tween(base, TweenInfo.new(0.3, Enum.EasingStyle.Exponential, Enum.EasingDirection.Out), {
+				Size = UDim2.fromOffset(1024, 768)
+			}):Play()
+		else
+			Tween(base, TweenInfo.new(0.3, Enum.EasingStyle.Exponential, Enum.EasingDirection.Out), {
+				Size = originalSize
+			}):Play()
+		end
+	end)
+	
 	exit.MouseButton1Click:Connect(function()
 		WindowFunctions:Dialog({
 			Title = Settings.Title,
