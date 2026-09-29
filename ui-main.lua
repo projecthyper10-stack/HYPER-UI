@@ -776,8 +776,8 @@ function MacLib:Window(Settings)
 
 	local resizingContent = false
 	local initialMouseX, initialSidebarWidth
-	local snapRange = 15
-	local minSidebarWidth = 50
+	local minSidebarWidth = Settings.SidebarMinSize or (Settings.SidebarBounds and Settings.SidebarBounds.Min) or 50
+	local maxSidebarWidth = Settings.SidebarMaxSize or (Settings.SidebarBounds and Settings.SidebarBounds.Max) or 250
 
 	local registeredTabs = {}
 	local registeredDividers = {}
@@ -869,52 +869,60 @@ function MacLib:Window(Settings)
 
 	local TweenSettings = {
 		DefaultTransparency = 0.9,
-		HoverTransparency = 0.85,
+		HoverTransparency = 0.7,
+		ActiveTransparency = 0.4,
 
-		EasingStyle = Enum.EasingStyle.Sine
+		EasingStyle = Enum.EasingStyle.Quad
 	}
 
 	local function ChangeState(State)
+		local trans = TweenSettings.DefaultTransparency
+		if State == "Hover" then
+			trans = TweenSettings.HoverTransparency
+		elseif State == "Active" then
+			trans = TweenSettings.ActiveTransparency
+		end
 		Tween(divider, TweenInfo.new(0.2, TweenSettings.EasingStyle), {
-			BackgroundTransparency = State == "Idle" and TweenSettings.DefaultTransparency or TweenSettings.HoverTransparency
+			BackgroundTransparency = trans
 		}):Play()  
 	end
 
 	dividerInteract.MouseEnter:Connect(function()
-		ChangeState("Hover")
+		if not resizingContent then ChangeState("Hover") end
 	end)
 	dividerInteract.MouseLeave:Connect(function()
-		ChangeState("Idle")
+		if not resizingContent then ChangeState("Idle") end
 	end)
 
-	dividerInteract.MouseButton1Down:Connect(function()
-		resizingContent = true
-		initialMouseX = UserInputService:GetMouseLocation().X
-		initialSidebarWidth = sidebar.AbsoluteSize.X
+	dividerInteract.InputBegan:Connect(function(input)
+		if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+			resizingContent = true
+			initialMouseX = input.Position.X
+			initialSidebarWidth = sidebar.AbsoluteSize.X
+			ChangeState("Active")
+		end
 	end)
 
 	UserInputService.InputEnded:Connect(function(input)
-		if input.UserInputType == Enum.UserInputType.MouseButton1 then
-			resizingContent = false
+		if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+			if resizingContent then
+				resizingContent = false
+				ChangeState("Idle")
+			end
 		end
 	end)
 
 	UserInputService.InputChanged:Connect(function(input)
-		if resizingContent and input.UserInputType == Enum.UserInputType.MouseMovement then
-			local deltaX = UserInputService:GetMouseLocation().X - initialMouseX
+		if resizingContent and (input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch) then
+			local deltaX = input.Position.X - initialMouseX
 			local newSidebarWidth = initialSidebarWidth + deltaX
 			
-			local defaultSidebarWidth = base.AbsoluteSize.X * 0.26
-			local maxSidebarWidth = base.AbsoluteSize.X - 250
+			local currentMax = math.min(maxSidebarWidth, base.AbsoluteSize.X - 200)
+			newSidebarWidth = math.clamp(newSidebarWidth, minSidebarWidth, currentMax)
 
-			if math.abs(newSidebarWidth - defaultSidebarWidth) < snapRange then
-				newSidebarWidth = defaultSidebarWidth
-			else
-				newSidebarWidth = math.clamp(newSidebarWidth, minSidebarWidth, maxSidebarWidth)
-			end
-
-			sidebar.Size = UDim2.new(0, newSidebarWidth, 1, 0)
-			content.Size = UDim2.new(0, base.AbsoluteSize.X - newSidebarWidth, 1, 0)
+			local tweenInfo = TweenInfo.new(0.04, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
+			Tween(sidebar, tweenInfo, { Size = UDim2.new(0, newSidebarWidth, 1, 0) }):Play()
+			Tween(content, tweenInfo, { Size = UDim2.new(0, base.AbsoluteSize.X - newSidebarWidth, 1, 0) }):Play()
 			UpdateSidebarCollapse(newSidebarWidth)
 		end
 	end)
@@ -5834,6 +5842,14 @@ function MacLib:Window(Settings)
 	end
 	function WindowFunctions:GetSize(Size)
 		return base.Size
+	end
+
+	function WindowFunctions:SetSidebarBounds(Min, Max)
+		if Min then minSidebarWidth = Min end
+		if Max then maxSidebarWidth = Max end
+	end
+	function WindowFunctions:GetSidebarBounds()
+		return { Min = minSidebarWidth, Max = maxSidebarWidth }
 	end
 
 	function WindowFunctions:SetScale(Scale)
