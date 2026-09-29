@@ -88,9 +88,9 @@ else warn("[MacLib] Failed to load: " .. tostring(resLoad)) return end
 -- ==============================================================================
 
 local Window = MacLib:Window({
-    Title = "HYPER HUB",
-    Subtitle = "Project Slayers 2",
-    Logo = "rbxassetid://136264753381080",
+    Title = "HYPER HUB",---- ไม่ต้องแก้
+    Subtitle = "Project Slayers 2",---ชื่อเกม
+    Logo = "rbxassetid://108952102602834",
     Size = UDim2.fromOffset(710, 450),
     DragStyle = 1,
     SidebarMinSize = 50,

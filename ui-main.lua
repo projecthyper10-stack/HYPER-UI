@@ -227,7 +227,7 @@ function MacLib:Window(Settings)
 	breadcrumb.Position = UDim2.new(0.5, 0, 0, -20)
 	breadcrumb.AnchorPoint = Vector2.new(0.5, 0)
 	breadcrumb.BackgroundColor3 = Color3.fromRGB(20, 20, 20)
-	breadcrumb.Image = "rbxassetid://136264753381080" -- Singularity star icon or globe
+	breadcrumb.Image = assets.globe or "rbxassetid://108952102602834"
 	breadcrumb.Visible = false
 	breadcrumb.AutoButtonColor = false
 	breadcrumb.Parent = macLib
@@ -470,13 +470,15 @@ function MacLib:Window(Settings)
 	informationHolderUIPadding.PaddingTop = UDim.new(0, 10)
 	informationHolderUIPadding.Parent = informationHolder
 
-	local logoAsset = "rbxassetid://136264753381080"
+	local logoAsset = assets.globe or "rbxassetid://108952102602834"
 	if Settings.Logo then
 		logoAsset = IconEngine:GetIcon(Settings.Logo) or Settings.Logo
 	elseif Settings.LogoAsset then
 		logoAsset = IconEngine:GetIcon(Settings.LogoAsset) or Settings.LogoAsset
 	elseif Settings.Icon then
 		logoAsset = IconEngine:GetIcon(Settings.Icon) or Settings.Icon
+	elseif assets.globe then
+		logoAsset = assets.globe
 	elseif assets.logo then
 		logoAsset = assets.logo
 	end
