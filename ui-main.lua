@@ -751,8 +751,19 @@ function MacLib:Window(Settings)
 	content.BackgroundTransparency = 1
 	content.BorderColor3 = Color3.fromRGB(0, 0, 0)
 	content.BorderSizePixel = 0
-	content.Position = UDim2.fromScale(1, 4.69e-08)
-	content.Size = UDim2.new(0, (base.AbsoluteSize.X - sidebar.AbsoluteSize.X), 1, 0)
+	content.Position = UDim2.fromScale(1, 0)
+	local function UpdateContentSize()
+		local curBaseW = base.AbsoluteSize.X
+		local curSideW = sidebar.AbsoluteSize.X
+		if curBaseW > 0 then
+			local availableWidth = math.max(curBaseW - curSideW, 100)
+			content.Size = UDim2.new(0, availableWidth, 1, 0)
+		end
+	end
+
+	UpdateContentSize()
+	base:GetPropertyChangedSignal("AbsoluteSize"):Connect(UpdateContentSize)
+	sidebar:GetPropertyChangedSignal("AbsoluteSize"):Connect(UpdateContentSize)
 
 	local resizingContent = false
 	local initialMouseX, initialSidebarWidth
@@ -1124,9 +1135,10 @@ function MacLib:Window(Settings)
 		if isResizingWindow and (inp.UserInputType == Enum.UserInputType.MouseMovement or inp.UserInputType == Enum.UserInputType.Touch) then
 			local deltaX = inp.Position.X - resizeStartMouse.X
 			local deltaY = inp.Position.Y - resizeStartMouse.Y
-			local newW = math.clamp(resizeStartWinSize.X + deltaX, 480, 1100)
-			local newH = math.clamp(resizeStartWinSize.Y + deltaY, 320, 750)
+			local newW = math.clamp(resizeStartWinSize.X + deltaX, 580, 850)
+			local newH = math.clamp(resizeStartWinSize.Y + deltaY, 380, 560)
 			base.Size = UDim2.fromOffset(newW, newH)
+			UpdateContentSize()
 		end
 	end)
 
@@ -1830,6 +1842,28 @@ function MacLib:Window(Settings)
 
 			elementsScrolling.Parent = elements1
 
+			local function UpdateColumnSizes()
+				local rightCount = 0
+				for _, child in ipairs(right:GetChildren()) do
+					if child:IsA("Frame") and child.Name == "Section" then
+						rightCount += 1
+					end
+				end
+
+				if rightCount > 0 then
+					left.Size = UDim2.new(0.5, -8, 0, 0)
+					right.Size = UDim2.new(0.5, -8, 0, 0)
+					right.Visible = true
+				else
+					left.Size = UDim2.new(1, -5, 0, 0)
+					right.Visible = false
+				end
+			end
+
+			right.ChildAdded:Connect(UpdateColumnSizes)
+			right.ChildRemoved:Connect(UpdateColumnSizes)
+			task.defer(UpdateColumnSizes)
+
 			function TabFunctions:Section(Settings)
 				local SectionFunctions = {}
 				local section = Instance.new("Frame")
@@ -1843,6 +1877,7 @@ function MacLib:Window(Settings)
 				section.Size = UDim2.fromScale(1, 0)
 				section.ClipsDescendants = true
 				section.Parent = Settings.Side == "Left" and left or right
+				UpdateColumnSizes()
 
 				local sectionUICorner = Instance.new("UICorner")
 				sectionUICorner.Name = "SectionUICorner"
