@@ -709,7 +709,7 @@ function MacLib:Window(Settings)
 	sidebarGroupUIPadding.Name = "SidebarGroupUIPadding"
 	sidebarGroupUIPadding.PaddingLeft = UDim.new(0, 10)
 	sidebarGroupUIPadding.PaddingRight = UDim.new(0, 10)
-	sidebarGroupUIPadding.PaddingTop = UDim.new(0, 31)
+	sidebarGroupUIPadding.PaddingTop = UDim.new(0, 8)
 	sidebarGroupUIPadding.Parent = sidebarGroup
 
 	local tabSwitchers = Instance.new("Frame")
