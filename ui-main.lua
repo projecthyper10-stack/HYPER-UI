@@ -290,7 +290,7 @@ function MacLib:Window(Settings)
 
 	local uIListLayout = Instance.new("UIListLayout")
 	uIListLayout.Name = "UIListLayout"
-	uIListLayout.Padding = UDim.new(0, 5)
+	uIListLayout.Padding = UDim.new(0, 6)
 	uIListLayout.FillDirection = Enum.FillDirection.Horizontal
 	uIListLayout.SortOrder = Enum.SortOrder.LayoutOrder
 	uIListLayout.VerticalAlignment = Enum.VerticalAlignment.Center
@@ -298,11 +298,15 @@ function MacLib:Window(Settings)
 
 	local uIPadding = Instance.new("UIPadding")
 	uIPadding.Name = "UIPadding"
-	uIPadding.PaddingLeft = UDim.new(0, 11)
+	uIPadding.PaddingLeft = UDim.new(0, 14)
 	uIPadding.Parent = controls
 
+	local controlDotSize = Settings.WindowControlSize or 12
 	local windowControlSettings = {
-		sizes = { enabled = UDim2.fromOffset(8, 8), disabled = UDim2.fromOffset(7, 7) },
+		sizes = {
+			enabled = UDim2.fromOffset(controlDotSize, controlDotSize),
+			disabled = UDim2.fromOffset(math.max(controlDotSize - 2, 6), math.max(controlDotSize - 2, 6))
+		},
 		transparencies = { enabled = 0, disabled = 1 },
 		strokeTransparency = 0.9,
 	}
@@ -401,7 +405,7 @@ function MacLib:Window(Settings)
 
 		if isEnabled then
 			button.MouseEnter:Connect(function()
-				Tween(button, TweenInfo.new(0.15, Enum.EasingStyle.Quad), { Size = UDim2.fromOffset(10, 10) }):Play()
+				Tween(button, TweenInfo.new(0.15, Enum.EasingStyle.Quad), { Size = UDim2.fromOffset(controlDotSize + 2, controlDotSize + 2) }):Play()
 			end)
 			button.MouseLeave:Connect(function()
 				Tween(button, TweenInfo.new(0.15, Enum.EasingStyle.Quad), { Size = windowControlSettings.sizes.enabled }):Play()
@@ -888,7 +892,7 @@ function MacLib:Window(Settings)
 				informationHolderUIPadding.PaddingLeft = UDim.new(0, 23)
 				informationHolderUIPadding.PaddingRight = UDim.new(0, 22)
 			end
-			if uIPadding then uIPadding.PaddingLeft = UDim.new(0, 11) end
+			if uIPadding then uIPadding.PaddingLeft = UDim.new(0, 14) end
 			if uIListLayout then uIListLayout.HorizontalAlignment = Enum.HorizontalAlignment.Left end
 		end
 	end
@@ -5987,6 +5991,21 @@ function MacLib:Window(Settings)
 	end
 	function WindowFunctions:GetAccentColor()
 		return currentAccentColor
+	end
+
+	function WindowFunctions:SetWindowControlSize(size)
+		if typeof(size) == "number" and size > 0 then
+			controlDotSize = size
+			windowControlSettings.sizes.enabled = UDim2.fromOffset(size, size)
+			windowControlSettings.sizes.disabled = UDim2.fromOffset(math.max(size - 2, 6), math.max(size - 2, 6))
+			for _, btn in ipairs(controlsList) do
+				local isBtnEnabled = not (Settings.DisabledWindowControls and table.find(Settings.DisabledWindowControls, btn.Name))
+				applyState(btn, isBtnEnabled)
+			end
+		end
+	end
+	function WindowFunctions:GetWindowControlSize()
+		return controlDotSize
 	end
 
 	local ClassParser = {

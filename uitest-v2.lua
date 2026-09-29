@@ -99,6 +99,7 @@ local Window = MacLib:Window({
     ShowUserInfo = true,
     Keybind = Enum.KeyCode.RightControl,
     AccentColor = Color3.fromRGB(29, 235, 169),
+    WindowControlSize = 12,
     AcrylicBlur = true,
 })
 
