@@ -1,6 +1,7 @@
 local MacLib = { 
 	Options = {}, 
 	Folder = "Maclib", 
+	Version = "v2.0",
 	GetService = function(service)
 		return cloneref and cloneref(game:GetService(service)) or game:GetService(service)
 	end
@@ -154,7 +155,25 @@ end
 
 --// Library Functions
 function MacLib:Window(Settings)
-	local WindowFunctions = {Settings = Settings}
+	Settings = Settings or {}
+	local uiVersion = MacLib.Version or "v2.0"
+	local scriptVersion = Settings.Version or Settings.ScriptVersion or "v1.0"
+	local title = Settings.Title or "HYPER HUB"
+	local subtitle = Settings.Subtitle or ""
+	local displayName = title .. (subtitle ~= "" and (" - " .. subtitle) or "")
+
+	print("========================================")
+	print("[HYPER HUB] System Loaded")
+	print("  • UI Version     : " .. tostring(uiVersion))
+	print("  • Script Version : " .. tostring(scriptVersion))
+	print("  • Title          : " .. tostring(displayName))
+	print("========================================")
+
+	local WindowFunctions = {
+		Settings = Settings,
+		UIVersion = uiVersion,
+		Version = scriptVersion,
+	}
 	if Settings.AcrylicBlur ~= nil then
 		acrylicBlur = Settings.AcrylicBlur
 	else
@@ -6861,6 +6880,8 @@ function MacLib:Window(Settings)
 
 	return WindowFunctions
 end
+
+print(string.format("[HYPER HUB] UI Library Loaded! (Version: %s)", tostring(MacLib.Version or "v2.0")))
 
 return MacLib
 

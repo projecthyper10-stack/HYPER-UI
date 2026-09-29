@@ -87,9 +87,12 @@ else warn("[MacLib] Failed to load: " .. tostring(resLoad)) return end
 --  Window
 -- ==============================================================================
 
+local SCRIPT_VERSION = "v2.6"
+
 local Window = MacLib:Window({
     Title = "HYPER HUB",---- ไม่ต้องแก้
     Subtitle = "Project Slayers 2",---ชื่อเกม
+    Version = SCRIPT_VERSION,
     Logo = "rbxassetid://108952102602834",
     Size = UDim2.fromOffset(710, 450),
     DragStyle = 1,
@@ -168,6 +171,12 @@ sections.HomeStats:SubLabel({ Text = plr and plr.Name or "Unknown" })
 
 sections.HomeStats:Label({ Text = "Executor" })
 sections.HomeStats:SubLabel({ Text = (identifyexecutor and identifyexecutor()) or "Unknown" })
+
+sections.HomeStats:Label({ Text = "Script Version" })
+sections.HomeStats:SubLabel({ Text = SCRIPT_VERSION })
+
+sections.HomeStats:Label({ Text = "UI Version" })
+sections.HomeStats:SubLabel({ Text = tostring(MacLib.Version or "v2.0") })
 
 sections.HomeStats:Label({ Text = "Device / OS" })
 sections.HomeStats:SubLabel({ Text = "Windows / PC" })
