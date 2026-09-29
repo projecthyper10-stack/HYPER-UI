@@ -1,10 +1,10 @@
--- ==============================================================================
---  HYPER HUB / MACLIB - UI Test Script
+﻿-- ==============================================================================
+--  HYPER HUB / MACLIB - UI Test Script (Slayers2 Style)
 -- ==============================================================================
 
 local REPO = "https://raw.githubusercontent.com/projecthyper10-stack/HYPER-UI/refs/heads/main/"
 
--- Step 1: โหลด icon.lua ก่อน แล้วฝังใน _G เพื่อให้ ui-main.lua หยิบไปใช้ได้
+-- Step 1: Pre-load icon.lua
 pcall(function()
     local iconCode = ""
     if typeof(isfile) == "function" and isfile("icon.lua") then
@@ -17,17 +17,14 @@ pcall(function()
     local func = loadstring(iconCode)
     if func then
         local ok, result = pcall(func)
-        if ok and result then
-            _G._MacLibIconEngine = result
-        end
+        if ok and result then _G._MacLibIconEngine = result end
     end
 end)
 
--- Step 2: โหลด ui-main.lua
+-- Step 2: Load ui-main.lua
 local MacLib
 local okLoad, resLoad = pcall(function()
     local code = ""
-
     if typeof(isfile) == "function" and isfile("ui-main.lua") then
         code = readfile("ui-main.lua")
     elseif typeof(isfile) == "function" and isfile("Maclib/ui-main.lua") then
@@ -35,280 +32,141 @@ local okLoad, resLoad = pcall(function()
     else
         code = game:HttpGet(REPO .. "ui-main.lua?t=" .. tostring(tick()))
     end
-
     local func, err = loadstring(code)
     if not func then error("[ui-main.lua Compile Error]: " .. tostring(err)) end
-
     local ok, result = pcall(func)
     if not ok then error("[ui-main.lua Runtime Error]: " .. tostring(result)) end
     return result
 end)
+if okLoad and resLoad then MacLib = resLoad
+else warn("[MacLib] Failed to load: " .. tostring(resLoad)) return end
 
-if okLoad and resLoad then
-    MacLib = resLoad
-else
-    warn("[MacLib] Failed to load: " .. tostring(resLoad))
-    return
-end
-
+-- ==============================================================================
+--  Window
+-- ==============================================================================
 
 local Window = MacLib:Window({
-	Title = "Maclib Demo",
-	Subtitle = "This is a subtitle.",
-	Size = UDim2.fromOffset(868, 650),
-	DragStyle = 1,
-	DisabledWindowControls = {},
-	ShowUserInfo = true,
-	Keybind = Enum.KeyCode.RightControl,
-	AcrylicBlur = true,
+    Title = "Slayers2",
+    Subtitle = "Primary",
+    Size = UDim2.fromOffset(868, 550),
+    DragStyle = 1,
+    DisabledWindowControls = {},
+    ShowUserInfo = true,
+    Keybind = Enum.KeyCode.RightControl,
+    AcrylicBlur = true,
 })
 
-local globalSettings = {
-	UIBlurToggle = Window:GlobalSetting({
-		Name = "UI Blur",
-		Default = Window:GetAcrylicBlurState(),
-		Callback = function(bool)
-			Window:SetAcrylicBlurState(bool)
-			Window:Notify({
-				Title = Window.Settings.Title,
-				Description = (bool and "Enabled" or "Disabled") .. " UI Blur",
-				Lifetime = 5
-			})
-		end,
-	}),
-	NotificationToggler = Window:GlobalSetting({
-		Name = "Notifications",
-		Default = Window:GetNotificationsState(),
-		Callback = function(bool)
-			Window:SetNotificationsState(bool)
-			Window:Notify({
-				Title = Window.Settings.Title,
-				Description = (bool and "Enabled" or "Disabled") .. " Notifications",
-				Lifetime = 5
-			})
-		end,
-	}),
-	ShowUserInfo = Window:GlobalSetting({
-		Name = "Show User Info",
-		Default = Window:GetUserInfoState(),
-		Callback = function(bool)
-			Window:SetUserInfoState(bool)
-			Window:Notify({
-				Title = Window.Settings.Title,
-				Description = (bool and "Showing" or "Redacted") .. " User Info",
-				Lifetime = 5
-			})
-		end,
-	})
-}
+Window:GlobalSetting({ Name = "UI Blur", Default = Window:GetAcrylicBlurState(), Callback = function(bool) Window:SetAcrylicBlurState(bool) end })
+Window:GlobalSetting({ Name = "Notifications", Default = Window:GetNotificationsState(), Callback = function(bool) Window:SetNotificationsState(bool) end })
+
+-- ==============================================================================
+--  Tab Groups (Sidebar Categories)
+-- ==============================================================================
 
 local tabGroups = {
-	TabGroup1 = Window:TabGroup()
+    AutoFarm   = Window:TabGroup(),
+    Combat     = Window:TabGroup(),
+    Character  = Window:TabGroup(),
+    Training   = Window:TabGroup(),
+    Navigation = Window:TabGroup(),
+    Farms      = Window:TabGroup(),
 }
+
+-- ==============================================================================
+--  Tabs
+-- ==============================================================================
 
 local tabs = {
-	Main = tabGroups.TabGroup1:Tab({ Name = "Demo", Image = "rbxassetid://18821914323" }),
-	Settings = tabGroups.TabGroup1:Tab({ Name = "Settings", Image = "rbxassetid://10734950309" })
+    Farming    = tabGroups.AutoFarm:Tab({ Name = "Farming",    Icon = "lucide-wheat" }),
+    Loadout    = tabGroups.Combat:Tab({ Name = "Loadout",      Icon = "lucide-shield" }),
+    Movement   = tabGroups.Character:Tab({ Name = "Movement",  Icon = "lucide-person-standing" }),
+    Breathing  = tabGroups.Training:Tab({ Name = "Breathing",  Icon = "lucide-wind" }),
+    DemonArt   = tabGroups.Training:Tab({ Name = "Demon Art",  Icon = "lucide-flame" }),
+    Travel     = tabGroups.Navigation:Tab({ Name = "Travel",   Icon = "lucide-map-pin" }),
+    Schematics = tabGroups.Farms:Tab({ Name = "Schematics",    Icon = "lucide-clipboard" }),
 }
+
+-- ==============================================================================
+--  Sections
+-- ==============================================================================
 
 local sections = {
-	MainSection1 = tabs.Main:Section({ Side = "Left" }),
+    FarmingMain   = tabs.Farming:Section({ Name = "Auto Farm", Side = "Left" }),
+    BossSection   = tabs.Farming:Section({ Name = "Bosses",    Side = "Left" }),
+    BossHunt      = tabs.Farming:Section({ Name = "Boss Hunt", Side = "Left" }),
+    LoadoutMain   = tabs.Loadout:Section({ Name = "Equipment", Side = "Left" }),
+    MovementMain  = tabs.Movement:Section({ Name = "Movement", Side = "Left" }),
+    BreathingMain = tabs.Breathing:Section({ Name = "Breathing Style", Side = "Left" }),
+    DemonArtMain  = tabs.DemonArt:Section({ Name = "Demon Art", Side = "Left" }),
+    TravelMain    = tabs.Travel:Section({ Name = "Navigation", Side = "Left" }),
+    SchematicsMain = tabs.Schematics:Section({ Name = "Schematics", Side = "Left" }),
 }
 
-sections.MainSection1:Header({
-	Name = "Header #1"
-})
+-- ==============================================================================
+--  Farming Tab
+-- ==============================================================================
 
-sections.MainSection1:Button({
-	Name = "Button",
-	Callback = function()
-		Window:Dialog({
-			Title = Window.Settings.Title,
-			Description = "Lorem ipsum odor amet, consectetuer adipiscing elit. Eros vestibulum aliquet mattis, ex platea nunc.",
-			Buttons = {
-				{
-					Name = "Confirm",
-					Callback = function()
-						print("Confirmed!")
-					end,
-				},
-				{
-					Name = "Cancel"
-				}
-			}
-		})
-	end,
-})
+sections.FarmingMain:Toggle({ Name = "Auto Farm", Description = "Turn auto-farming on or off.", Default = false, Callback = function(v) end }, "AutoFarm")
+sections.FarmingMain:Toggle({ Name = "Auto Final Selection [WIP]", Description = "Travel to the Final Selection zone before its next cycle.", Default = false, Callback = function(v) end }, "AutoFinalSelection")
+sections.FarmingMain:Label({ Text = "Next Final Selection" })
+sections.FarmingMain:SubLabel({ Text = "9:36" })
+sections.FarmingMain:Dropdown({ Name = "Quest Selection", Description = "Smart picks the best quest, or choose one.", Multi = false, Required = true, Options = { "Smart", "Slayer Quest", "Demon Quest", "Wisteria Quest" }, Default = 1, Callback = function(v) end }, "QuestSelection")
 
-sections.MainSection1:Input({
-	Name = "Input",
-	Placeholder = "Input",
-	AcceptedCharacters = "All",
-	Callback = function(input)
-		Window:Notify({
-			Title = Window.Settings.Title,
-			Description = "Successfully set input to " .. input
-		})
-	end,
-	onChanged = function(input)
-		print("Input is now " .. input)
-	end,
-}, "Input")
+sections.BossSection:Toggle({ Name = "Enabled", Description = "Turn boss farming on or off.", Default = false, Callback = function(v) end }, "BossEnabled")
+sections.BossSection:Dropdown({ Name = "Bosses", Description = "Select which boss to farm.", Multi = false, Required = true, Options = { "[Lv 45] [Boss] [Flame Trainee]", "[Lv 60] [Boss] [Thunder Trainee]", "[Lv 80] [Boss] [Water Trainee]" }, Default = 1, Callback = function(v) end }, "BossSelect")
 
-sections.MainSection1:Slider({
-	Name = "Slider",
-	Default = 50,
-	Minimum = 0,
-	Maximum = 100,
-	DisplayMethod = "Percent",
-	Precision = 0,
-	Callback = function(Value)
-		print("Changed to ".. Value)
-	end
-}, "Slider")
+sections.BossHunt:Toggle({ Name = "Enabled", Description = "Auto-accepts and fights the best available Boss Hunt quest.", Default = false, Callback = function(v) end }, "BossHuntEnabled")
 
-sections.MainSection1:Toggle({
-	Name = "Toggle",
-	Default = false,
-	Callback = function(value)
-		Window:Notify({
-			Title = Window.Settings.Title,
-			Description = (value and "Enabled " or "Disabled ") .. "Toggle"
-		})
-	end,
-}, "Toggle")
+-- ==============================================================================
+--  Loadout Tab
+-- ==============================================================================
 
-sections.MainSection1:Keybind({
-	Name = "Keybind",
-	Blacklist = false,
-	Callback = function(binded)
-		Window:Notify({
-			Title = "Demo Window",
-			Description = "Pressed keybind - "..tostring(binded.Name),
-			Lifetime = 3
-		})
-	end,
-	onBinded = function(bind)
-		Window:Notify({
-			Title = "Demo Window",
-			Description = "Successfully Binded Keybind to - "..tostring(bind.Name),
-			Lifetime = 3
-		})
-	end,
-}, "Keybind")
+sections.LoadoutMain:Dropdown({ Name = "Weapon", Description = "Select your current weapon.", Multi = false, Required = true, Options = { "Katana", "Nichirin Blade", "Wooden Sword" }, Default = 1, Callback = function(v) end }, "WeaponSelect")
+sections.LoadoutMain:Toggle({ Name = "Auto Equip Best Gear", Description = "Automatically equips the strongest available gear.", Default = false, Callback = function(v) end }, "AutoEquip")
 
-sections.MainSection1:Colorpicker({
-	Name = "Colorpicker",
-	Default = Color3.fromRGB(0, 255, 255),
-	Callback = function(color)
-		print("Color: ", color)
-	end,
-}, "Colorpicker")
+-- ==============================================================================
+--  Movement Tab
+-- ==============================================================================
 
-local alphaColorPicker = sections.MainSection1:Colorpicker({
-	Name = "Transparency Colorpicker",
-	Default = Color3.fromRGB(255,0,0),
-	Alpha = 0,
-	Callback = function(color, alpha)
-		print("Color: ", color, " Alpha: ", alpha)
-	end,
-}, "TransparencyColorpicker")
+sections.MovementMain:Toggle({ Name = "Speed Boost", Description = "Increases movement speed while active.", Default = false, Callback = function(v) end }, "SpeedBoost")
+sections.MovementMain:Slider({ Name = "Walk Speed", Description = "Set your character walk speed.", Default = 16, Minimum = 16, Maximum = 100, DisplayMethod = "Value", Precision = 0, Callback = function(v) end }, "WalkSpeed")
+sections.MovementMain:Toggle({ Name = "Infinite Jump", Description = "Allows jumping while in the air.", Default = false, Callback = function(v) end }, "InfJump")
 
-local rainbowActive
-local rainbowConnection
-local hue = 0
+-- ==============================================================================
+--  Breathing Tab
+-- ==============================================================================
 
-sections.MainSection1:Toggle({
-	Name = "Rainbow",
-	Default = false,
-	Callback = function(value)
-		rainbowActive = value
+sections.BreathingMain:Toggle({ Name = "Auto Breathing", Description = "Automatically uses your breathing style in combat.", Default = false, Callback = function(v) end }, "AutoBreathing")
+sections.BreathingMain:Dropdown({ Name = "Breathing Style", Description = "Select your breathing style.", Multi = false, Required = true, Options = { "Flame Breathing", "Water Breathing", "Thunder Breathing", "Wind Breathing", "Stone Breathing" }, Default = 1, Callback = function(v) end }, "BreathingStyle")
 
-		if rainbowActive then
-			rainbowConnection = game:GetService("RunService").RenderStepped:Connect(function(deltaTime)
-				hue = (hue + deltaTime * 0.1) % 1
-				alphaColorPicker:SetColor(Color3.fromHSV(hue, 1, 1))
-			end)
-		elseif rainbowConnection then
-			rainbowConnection:Disconnect()
-			rainbowConnection = nil
-		end
-	end,
-}, "RainbowToggle")
+-- ==============================================================================
+--  Demon Art Tab
+-- ==============================================================================
 
-local optionTable = {
-	"Apple",
-	"Banana",
-	"Orange",
-	"Grapes",
-	"Pineapple",
-	"Mango",
-	"Strawberry",
-	"Blueberry",
-	"Watermelon",
-	"Peach"
-}
+sections.DemonArtMain:Toggle({ Name = "Auto Demon Art", Description = "Automatically uses Demon Art abilities.", Default = false, Callback = function(v) end }, "AutoDemonArt")
+sections.DemonArtMain:Dropdown({ Name = "Demon Art", Description = "Select your Demon Art.", Multi = false, Required = true, Options = { "Blood Demon Art", "Bone Manipulation", "Flesh Manipulation" }, Default = 1, Callback = function(v) end }, "DemonArtSelect")
 
-local Dropdown = sections.MainSection1:Dropdown({
-	Name = "Dropdown",
-	Multi = false,
-	Required = true,
-	Options = optionTable,
-	Default = 1,
-	Callback = function(Value)
-		print("Dropdown changed: ".. Value)
-	end,
-}, "Dropdown")
+-- ==============================================================================
+--  Travel Tab
+-- ==============================================================================
 
-local MultiDropdown = sections.MainSection1:Dropdown({
-	Name = "Multi Dropdown",
-	Search = true,
-	Multi = true,
-	Required = false,
-	Options = optionTable,
-	Default = {"Apple", "Orange"},
-	Callback = function(Value)
-		local Values = {}
-		for Value, State in next, Value do
-			table.insert(Values, Value)
-		end
-		print("Mutlidropdown changed:", table.concat(Values, ", "))
-	end,
-}, "MultiDropdown")
+sections.TravelMain:Dropdown({ Name = "Destination", Description = "Select where to travel.", Multi = false, Required = true, Options = { "Final Selection", "Butterfly Mansion", "Swordsmith Village", "Infinity Castle" }, Default = 1, Callback = function(v) end }, "TravelDest")
+sections.TravelMain:Button({ Name = "Travel Now", Description = "Teleport to selected destination.", Callback = function() Window:Notify({ Title = "Travel", Description = "Traveling...", Lifetime = 3 }) end })
 
-sections.MainSection1:Button({
-	Name = "Update Selection",
-	Callback = function()
-		Dropdown:UpdateSelection("Grapes")
-		MultiDropdown:UpdateSelection({"Banana", "Pineapple"})
-	end,
-})
+-- ==============================================================================
+--  Schematics Tab
+-- ==============================================================================
 
-sections.MainSection1:Divider()
+sections.SchematicsMain:Toggle({ Name = "Auto Collect Schematics", Description = "Automatically picks up schematics in the world.", Default = false, Callback = function(v) end }, "AutoSchematics")
 
-sections.MainSection1:Header({
-	Text = "Header #2"
-})
-
-sections.MainSection1:Paragraph({
-	Header = "Paragraph",
-	Body = "Paragraph body. Lorem ipsum odor amet, consectetuer adipiscing elit. Morbi tempus netus aliquet per velit est gravida."
-})
-
-sections.MainSection1:Label({
-	Text = "Label. Lorem ipsum odor amet, consectetuer adipiscing elit."
-})
-
-sections.MainSection1:SubLabel({
-	Text = "Sub-Label. Lorem ipsum odor amet, consectetuer adipiscing elit."
-})
+-- ==============================================================================
+--  Config & Init
+-- ==============================================================================
 
 MacLib:SetFolder("Maclib")
-tabs.Settings:InsertConfigSection("Left")
+tabs.Farming:InsertConfigSection("Left")
 
-Window.onUnloaded(function()
-	print("Unloaded!")
-end)
+Window.onUnloaded(function() print("[Slayers2] Unloaded!") end)
 
-tabs.Main:Select()
+tabs.Farming:Select()
 MacLib:LoadAutoLoadConfig()

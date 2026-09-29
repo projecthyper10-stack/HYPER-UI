@@ -318,7 +318,9 @@ function MacLib:Window(Settings)
 		end
 	end
 
-	local controlsList = {exit, minimize, maximize}
+	applyState(maximize, false)
+
+	local controlsList = {exit, minimize}
 	for _, button in pairs(controlsList) do
 		local buttonName = button.Name
 		local isEnabled = true
@@ -511,7 +513,7 @@ function MacLib:Window(Settings)
 
 	local informationGroupUIPadding = Instance.new("UIPadding")
 	informationGroupUIPadding.Name = "InformationGroupUIPadding"
-	informationGroupUIPadding.PaddingBottom = UDim.new(0, 17)
+	informationGroupUIPadding.PaddingBottom = UDim.new(0, 0)
 	informationGroupUIPadding.PaddingLeft = UDim.new(0, 25)
 	informationGroupUIPadding.Parent = informationGroup
 
@@ -5346,21 +5348,6 @@ function MacLib:Window(Settings)
 	end)
 
 	minimize.MouseButton1Click:Connect(ToggleMenu)
-	
-	local isMaximized = false
-	local originalSize = Settings.Size or UDim2.fromOffset(868, 650)
-	maximize.MouseButton1Click:Connect(function()
-		isMaximized = not isMaximized
-		if isMaximized then
-			Tween(base, TweenInfo.new(0.3, Enum.EasingStyle.Exponential, Enum.EasingDirection.Out), {
-				Size = UDim2.fromOffset(1024, 768)
-			}):Play()
-		else
-			Tween(base, TweenInfo.new(0.3, Enum.EasingStyle.Exponential, Enum.EasingDirection.Out), {
-				Size = originalSize
-			}):Play()
-		end
-	end)
 	
 	exit.MouseButton1Click:Connect(function()
 		WindowFunctions:Dialog({
