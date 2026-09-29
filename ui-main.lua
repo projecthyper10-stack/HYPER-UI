@@ -576,7 +576,7 @@ function MacLib:Window(Settings)
 	userInfo.BorderColor3 = Color3.fromRGB(0, 0, 0)
 	userInfo.BorderSizePixel = 0
 	userInfo.Position = UDim2.fromScale(0, 1)
-	userInfo.Size = UDim2.new(1, 0, 0, 46)
+	userInfo.Size = UDim2.new(1, 0, 0, 42)
 
 	local informationGroup = Instance.new("Frame")
 	informationGroup.Name = "InformationGroup"
@@ -589,7 +589,7 @@ function MacLib:Window(Settings)
 	local informationGroupUIPadding = Instance.new("UIPadding")
 	informationGroupUIPadding.Name = "InformationGroupUIPadding"
 	informationGroupUIPadding.PaddingBottom = UDim.new(0, 0)
-	informationGroupUIPadding.PaddingLeft = UDim.new(0, 25)
+	informationGroupUIPadding.PaddingLeft = UDim.new(0, 4)
 	informationGroupUIPadding.Parent = informationGroup
 
 	local informationGroupUIListLayout = Instance.new("UIListLayout")
@@ -634,7 +634,7 @@ function MacLib:Window(Settings)
 	userAndDisplayFrame.BorderColor3 = Color3.fromRGB(0, 0, 0)
 	userAndDisplayFrame.BorderSizePixel = 0
 	userAndDisplayFrame.LayoutOrder = 1
-	userAndDisplayFrame.Size = UDim2.new(1, -42, 0, 32)
+	userAndDisplayFrame.Size = UDim2.new(1, -38, 0, 32)
 
 	local displayName = Instance.new("TextLabel")
 	displayName.Name = "DisplayName"
@@ -699,8 +699,8 @@ function MacLib:Window(Settings)
 
 	local userInfoUIPadding = Instance.new("UIPadding")
 	userInfoUIPadding.Name = "UserInfoUIPadding"
-	userInfoUIPadding.PaddingLeft = UDim.new(0, 10)
-	userInfoUIPadding.PaddingRight = UDim.new(0, 10)
+	userInfoUIPadding.PaddingLeft = UDim.new(0, 0)
+	userInfoUIPadding.PaddingRight = UDim.new(0, 2)
 	userInfoUIPadding.Parent = userInfo
 
 	userInfo.Parent = sidebarGroup
@@ -718,7 +718,7 @@ function MacLib:Window(Settings)
 	tabSwitchers.BackgroundTransparency = 1
 	tabSwitchers.BorderColor3 = Color3.fromRGB(0, 0, 0)
 	tabSwitchers.BorderSizePixel = 0
-	tabSwitchers.Size = UDim2.new(1, 0, 1, -50)
+	tabSwitchers.Size = UDim2.new(1, 0, 1, -44)
 
 	local tabSwitchersScrollingFrame = Instance.new("ScrollingFrame")
 	tabSwitchersScrollingFrame.Name = "TabSwitchersScrollingFrame"
@@ -846,7 +846,7 @@ function MacLib:Window(Settings)
 				Tween(div, TweenInfo.new(0.2, Enum.EasingStyle.Quad), { Size = UDim2.new(1, -21, 0, 1) }):Play()
 			end
 			if userAndDisplayFrame then userAndDisplayFrame.Visible = true end
-			if informationGroupUIPadding then informationGroupUIPadding.PaddingLeft = UDim.new(0, 25) end
+			if informationGroupUIPadding then informationGroupUIPadding.PaddingLeft = UDim.new(0, 4) end
 			if informationGroupUIListLayout then informationGroupUIListLayout.HorizontalAlignment = Enum.HorizontalAlignment.Left end
 			if title then title.Visible = true end
 			if subtitle then subtitle.Visible = true end
