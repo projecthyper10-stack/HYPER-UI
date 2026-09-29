@@ -88,8 +88,8 @@ else warn("[MacLib] Failed to load: " .. tostring(resLoad)) return end
 -- ==============================================================================
 
 local Window = MacLib:Window({
-    Title = "Slayers2",
-    Subtitle = "Primary",
+    Title = "HYPER HUB",
+    Subtitle = "Project Slayers 2",
     Logo = "rbxassetid://136264753381080",
     Size = UDim2.fromOffset(710, 450),
     DragStyle = 1,

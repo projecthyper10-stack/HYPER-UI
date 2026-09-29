@@ -483,6 +483,11 @@ function MacLib:Window(Settings)
 
 	local currentAccentColor = Settings.AccentColor or Color3.fromRGB(29, 235, 169)
 
+	local registeredFeatures = {}
+	local function RegisterFeature(data)
+		table.insert(registeredFeatures, data)
+	end
+
 	local globalSettingsButton = Instance.new("ImageButton")
 	globalSettingsButton.Name = "GlobalSettingsButton"
 	globalSettingsButton.Image = logoAsset
@@ -1128,8 +1133,390 @@ function MacLib:Window(Settings)
 	currentTab.BorderColor3 = Color3.fromRGB(0, 0, 0)
 	currentTab.BorderSizePixel = 0
 	currentTab.Position = UDim2.fromScale(0, 0.5)
-	currentTab.Size = UDim2.fromScale(0.9, 0)
+	currentTab.Size = UDim2.new(1, -220, 0, 24)
+	currentTab.TextTruncate = Enum.TextTruncate.AtEnd
 	currentTab.Parent = elements
+
+	-- Feature Search Bar
+	local searchBar = Instance.new("Frame")
+	searchBar.Name = "SearchBar"
+	searchBar.AnchorPoint = Vector2.new(1, 0.5)
+	searchBar.Position = UDim2.new(1, -28, 0.5, 0)
+	searchBar.Size = UDim2.new(0, 160, 0, 28)
+	searchBar.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+	searchBar.BackgroundTransparency = 0.95
+	searchBar.BorderSizePixel = 0
+	searchBar.Parent = elements
+
+	local searchBarCorner = Instance.new("UICorner")
+	searchBarCorner.CornerRadius = UDim.new(0, 6)
+	searchBarCorner.Parent = searchBar
+
+	local searchBarStroke = Instance.new("UIStroke")
+	searchBarStroke.Name = "SearchBarStroke"
+	searchBarStroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
+	searchBarStroke.Color = Color3.fromRGB(255, 255, 255)
+	searchBarStroke.Transparency = 0.9
+	searchBarStroke.Parent = searchBar
+
+	local searchIcon = Instance.new("ImageLabel")
+	searchIcon.Name = "SearchIcon"
+	searchIcon.Image = assets.searchIcon
+	searchIcon.ImageColor3 = currentAccentColor
+	searchIcon.ImageTransparency = 0.3
+	searchIcon.AnchorPoint = Vector2.new(0, 0.5)
+	searchIcon.Position = UDim2.new(0, 8, 0.5, 0)
+	searchIcon.Size = UDim2.fromOffset(13, 13)
+	searchIcon.BackgroundTransparency = 1
+	searchIcon.BorderSizePixel = 0
+	searchIcon.Parent = searchBar
+
+	local searchInput = Instance.new("TextBox")
+	searchInput.Name = "SearchInput"
+	searchInput.FontFace = Font.new(assets.interFont, Enum.FontWeight.Medium, Enum.FontStyle.Normal)
+	searchInput.PlaceholderText = "Search..."
+	searchInput.PlaceholderColor3 = Color3.fromRGB(140, 140, 140)
+	searchInput.Text = ""
+	searchInput.TextColor3 = Color3.fromRGB(255, 255, 255)
+	searchInput.TextSize = 12
+	searchInput.TextXAlignment = Enum.TextXAlignment.Left
+	searchInput.AnchorPoint = Vector2.new(0, 0.5)
+	searchInput.Position = UDim2.new(0, 26, 0.5, 0)
+	searchInput.Size = UDim2.new(1, -44, 1, 0)
+	searchInput.BackgroundTransparency = 1
+	searchInput.BorderSizePixel = 0
+	searchInput.ClearTextOnFocus = false
+	searchInput.Parent = searchBar
+
+	local searchClear = Instance.new("TextButton")
+	searchClear.Name = "SearchClear"
+	searchClear.Text = "✕"
+	searchClear.FontFace = Font.new(assets.interFont, Enum.FontWeight.Bold)
+	searchClear.TextColor3 = Color3.fromRGB(160, 160, 160)
+	searchClear.TextSize = 10
+	searchClear.AnchorPoint = Vector2.new(1, 0.5)
+	searchClear.Position = UDim2.new(1, -6, 0.5, 0)
+	searchClear.Size = UDim2.fromOffset(14, 14)
+	searchClear.BackgroundTransparency = 1
+	searchClear.Visible = false
+	searchClear.Parent = searchBar
+
+	-- Floating Search Results Overlay
+	local searchOverlay = Instance.new("Frame")
+	searchOverlay.Name = "SearchOverlay"
+	searchOverlay.AnchorPoint = Vector2.new(1, 0)
+	searchOverlay.Position = UDim2.new(1, -16, 0, 60)
+	searchOverlay.Size = UDim2.new(0, 310, 0, 250)
+	searchOverlay.BackgroundColor3 = Color3.fromRGB(20, 20, 24)
+	searchOverlay.BackgroundTransparency = 0.05
+	searchOverlay.BorderSizePixel = 0
+	searchOverlay.Visible = false
+	searchOverlay.ZIndex = 50
+	searchOverlay.ClipsDescendants = true
+	searchOverlay.Parent = base
+
+	local searchOverlayCorner = Instance.new("UICorner")
+	searchOverlayCorner.CornerRadius = UDim.new(0, 8)
+	searchOverlayCorner.Parent = searchOverlay
+
+	local searchOverlayStroke = Instance.new("UIStroke")
+	searchOverlayStroke.Color = Color3.fromRGB(255, 255, 255)
+	searchOverlayStroke.Transparency = 0.85
+	searchOverlayStroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
+	searchOverlayStroke.Parent = searchOverlay
+
+	local searchOverlayHeader = Instance.new("Frame")
+	searchOverlayHeader.Name = "Header"
+	searchOverlayHeader.Size = UDim2.new(1, 0, 0, 26)
+	searchOverlayHeader.BackgroundTransparency = 1
+	searchOverlayHeader.ZIndex = 51
+	searchOverlayHeader.Parent = searchOverlay
+
+	local searchOverlayHeaderPadding = Instance.new("UIPadding")
+	searchOverlayHeaderPadding.PaddingLeft = UDim.new(0, 10)
+	searchOverlayHeaderPadding.PaddingRight = UDim.new(0, 10)
+	searchOverlayHeaderPadding.Parent = searchOverlayHeader
+
+	local searchOverlayTitle = Instance.new("TextLabel")
+	searchOverlayTitle.Text = "FEATURES"
+	searchOverlayTitle.FontFace = Font.new(assets.interFont, Enum.FontWeight.SemiBold)
+	searchOverlayTitle.TextSize = 10
+	searchOverlayTitle.TextColor3 = Color3.fromRGB(140, 140, 150)
+	searchOverlayTitle.TextXAlignment = Enum.TextXAlignment.Left
+	searchOverlayTitle.Size = UDim2.new(0.5, 0, 1, 0)
+	searchOverlayTitle.BackgroundTransparency = 1
+	searchOverlayTitle.ZIndex = 51
+	searchOverlayTitle.Parent = searchOverlayHeader
+
+	local searchOverlayCount = Instance.new("TextLabel")
+	searchOverlayCount.Text = "0 found"
+	searchOverlayCount.FontFace = Font.new(assets.interFont, Enum.FontWeight.Medium)
+	searchOverlayCount.TextSize = 10
+	searchOverlayCount.TextColor3 = currentAccentColor
+	searchOverlayCount.TextXAlignment = Enum.TextXAlignment.Right
+	searchOverlayCount.Size = UDim2.new(0.5, 0, 1, 0)
+	searchOverlayCount.Position = UDim2.new(0.5, 0, 0, 0)
+	searchOverlayCount.BackgroundTransparency = 1
+	searchOverlayCount.ZIndex = 51
+	searchOverlayCount.Parent = searchOverlayHeader
+
+	local searchOverlayDivider = Instance.new("Frame")
+	searchOverlayDivider.Size = UDim2.new(1, 0, 0, 1)
+	searchOverlayDivider.Position = UDim2.new(0, 0, 0, 26)
+	searchOverlayDivider.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+	searchOverlayDivider.BackgroundTransparency = 0.9
+	searchOverlayDivider.BorderSizePixel = 0
+	searchOverlayDivider.ZIndex = 51
+	searchOverlayDivider.Parent = searchOverlay
+
+	local searchOverlayScroll = Instance.new("ScrollingFrame")
+	searchOverlayScroll.Name = "ResultsScroll"
+	searchOverlayScroll.Position = UDim2.new(0, 0, 0, 28)
+	searchOverlayScroll.Size = UDim2.new(1, 0, 1, -28)
+	searchOverlayScroll.BackgroundTransparency = 1
+	searchOverlayScroll.BorderSizePixel = 0
+	searchOverlayScroll.ScrollBarThickness = 2
+	searchOverlayScroll.ScrollBarImageColor3 = currentAccentColor
+	searchOverlayScroll.AutomaticCanvasSize = Enum.AutomaticSize.Y
+	searchOverlayScroll.CanvasSize = UDim2.new()
+	searchOverlayScroll.ZIndex = 51
+	searchOverlayScroll.Parent = searchOverlay
+
+	local searchScrollPadding = Instance.new("UIPadding")
+	searchScrollPadding.PaddingLeft = UDim.new(0, 6)
+	searchScrollPadding.PaddingRight = UDim.new(0, 6)
+	searchScrollPadding.PaddingTop = UDim.new(0, 4)
+	searchScrollPadding.PaddingBottom = UDim.new(0, 6)
+	searchScrollPadding.Parent = searchOverlayScroll
+
+	local searchScrollLayout = Instance.new("UIListLayout")
+	searchScrollLayout.Padding = UDim.new(0, 4)
+	searchScrollLayout.SortOrder = Enum.SortOrder.LayoutOrder
+	searchScrollLayout.Parent = searchOverlayScroll
+
+	local searchNoResults = Instance.new("TextLabel")
+	searchNoResults.Text = "No features found"
+	searchNoResults.FontFace = Font.new(assets.interFont, Enum.FontWeight.Medium)
+	searchNoResults.TextSize = 12
+	searchNoResults.TextColor3 = Color3.fromRGB(130, 130, 130)
+	searchNoResults.Size = UDim2.new(1, 0, 0, 40)
+	searchNoResults.BackgroundTransparency = 1
+	searchNoResults.Visible = false
+	searchNoResults.ZIndex = 51
+	searchNoResults.Parent = searchOverlayScroll
+
+	local function CloseSearch()
+		searchOverlay.Visible = false
+		searchInput.Text = ""
+		searchClear.Visible = false
+		Tween(searchBarStroke, TweenInfo.new(0.2, Enum.EasingStyle.Quad), { Color = Color3.fromRGB(255, 255, 255), Transparency = 0.9 }):Play()
+		Tween(searchBar, TweenInfo.new(0.2, Enum.EasingStyle.Quad), { BackgroundTransparency = 0.95 }):Play()
+	end
+
+	local badgeColors = {
+		["Toggle"] = currentAccentColor,
+		["Slider"] = Color3.fromRGB(56, 189, 248),
+		["Button"] = Color3.fromRGB(250, 204, 21),
+		["Dropdown"] = Color3.fromRGB(192, 132, 252),
+		["Keybind"] = Color3.fromRGB(244, 114, 182),
+		["Colorpicker"] = Color3.fromRGB(251, 146, 60),
+		["Input"] = Color3.fromRGB(74, 222, 128),
+	}
+
+	local function UpdateSearchResults(rawQuery)
+		local query = rawQuery:lower():gsub("^%s*(.-)%s*$", "%1")
+		if query == "" then
+			searchOverlay.Visible = false
+			searchClear.Visible = false
+			return
+		end
+
+		searchClear.Visible = true
+		searchOverlay.Visible = true
+		Tween(searchBarStroke, TweenInfo.new(0.2, Enum.EasingStyle.Quad), { Color = currentAccentColor, Transparency = 0.6 }):Play()
+		Tween(searchBar, TweenInfo.new(0.2, Enum.EasingStyle.Quad), { BackgroundTransparency = 0.9 }):Play()
+
+		for _, child in ipairs(searchOverlayScroll:GetChildren()) do
+			if child:IsA("GuiButton") then
+				child:Destroy()
+			end
+		end
+
+		local matchCount = 0
+		for _, feat in ipairs(registeredFeatures) do
+			local nameMatch = feat.Name and feat.Name:lower():find(query, 1, true)
+			local descMatch = feat.Description and feat.Description:lower():find(query, 1, true)
+			local typeMatch = feat.Type and feat.Type:lower():find(query, 1, true)
+			local tabMatch = feat.TabName and feat.TabName:lower():find(query, 1, true)
+			local secMatch = feat.SectionName and feat.SectionName:lower():find(query, 1, true)
+
+			if nameMatch or descMatch or typeMatch or tabMatch or secMatch then
+				matchCount = matchCount + 1
+
+				local row = Instance.new("TextButton")
+				row.Name = "ResultRow"
+				row.Text = ""
+				row.Size = UDim2.new(1, 0, 0, 42)
+				row.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+				row.BackgroundTransparency = 0.98
+				row.BorderSizePixel = 0
+				row.AutoButtonColor = false
+				row.ZIndex = 52
+				row.Parent = searchOverlayScroll
+
+				local rowCorner = Instance.new("UICorner")
+				rowCorner.CornerRadius = UDim.new(0, 6)
+				rowCorner.Parent = row
+
+				local rowStroke = Instance.new("UIStroke")
+				rowStroke.Color = Color3.fromRGB(255, 255, 255)
+				rowStroke.Transparency = 1
+				rowStroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
+				rowStroke.Parent = row
+
+				local rowPadding = Instance.new("UIPadding")
+				rowPadding.PaddingLeft = UDim.new(0, 8)
+				rowPadding.PaddingRight = UDim.new(0, 8)
+				rowPadding.PaddingTop = UDim.new(0, 4)
+				rowPadding.PaddingBottom = UDim.new(0, 4)
+				rowPadding.Parent = row
+
+				local featName = Instance.new("TextLabel")
+				featName.Text = feat.Name
+				featName.FontFace = Font.new(assets.interFont, Enum.FontWeight.Medium)
+				featName.TextSize = 13
+				featName.TextColor3 = Color3.fromRGB(255, 255, 255)
+				featName.TextXAlignment = Enum.TextXAlignment.Left
+				featName.Size = UDim2.new(1, -64, 0, 18)
+				featName.TextTruncate = Enum.TextTruncate.AtEnd
+				featName.BackgroundTransparency = 1
+				featName.ZIndex = 53
+				featName.Parent = row
+
+				local featPath = Instance.new("TextLabel")
+				local pathText = (feat.TabName or "") .. " › " .. (feat.SectionName or "")
+				if feat.Description and feat.Description ~= "" then
+					pathText = pathText .. " • " .. feat.Description
+				end
+				featPath.Text = pathText
+				featPath.FontFace = Font.new(assets.interFont, Enum.FontWeight.Normal)
+				featPath.TextSize = 10
+				featPath.TextColor3 = Color3.fromRGB(140, 140, 150)
+				featPath.TextXAlignment = Enum.TextXAlignment.Left
+				featPath.Position = UDim2.new(0, 0, 0, 18)
+				featPath.Size = UDim2.new(1, -64, 0, 16)
+				featPath.TextTruncate = Enum.TextTruncate.AtEnd
+				featPath.BackgroundTransparency = 1
+				featPath.ZIndex = 53
+				featPath.Parent = row
+
+				local bColor = badgeColors[feat.Type] or currentAccentColor
+				local badge = Instance.new("Frame")
+				badge.Name = "Badge"
+				badge.AnchorPoint = Vector2.new(1, 0.5)
+				badge.Position = UDim2.new(1, 0, 0.5, 0)
+				badge.Size = UDim2.new(0, 56, 0, 18)
+				badge.BackgroundColor3 = bColor
+				badge.BackgroundTransparency = 0.85
+				badge.BorderSizePixel = 0
+				badge.ZIndex = 53
+				badge.Parent = row
+
+				local badgeCorner = Instance.new("UICorner")
+				badgeCorner.CornerRadius = UDim.new(0, 4)
+				badgeCorner.Parent = badge
+
+				local badgeText = Instance.new("TextLabel")
+				badgeText.Text = feat.Type or ""
+				badgeText.FontFace = Font.new(assets.interFont, Enum.FontWeight.SemiBold)
+				badgeText.TextSize = 10
+				badgeText.TextColor3 = bColor
+				badgeText.Size = UDim.fromScale(1, 1)
+				badgeText.BackgroundTransparency = 1
+				badgeText.ZIndex = 54
+				badgeText.Parent = badge
+
+				row.MouseEnter:Connect(function()
+					Tween(row, TweenInfo.new(0.15, Enum.EasingStyle.Quad), { BackgroundTransparency = 0.92 }):Play()
+					Tween(rowStroke, TweenInfo.new(0.15, Enum.EasingStyle.Quad), { Transparency = 0.7 }):Play()
+				end)
+				row.MouseLeave:Connect(function()
+					Tween(row, TweenInfo.new(0.15, Enum.EasingStyle.Quad), { BackgroundTransparency = 0.98 }):Play()
+					Tween(rowStroke, TweenInfo.new(0.15, Enum.EasingStyle.Quad), { Transparency = 1 }):Play()
+				end)
+
+				local targetFeat = feat
+				row.MouseButton1Click:Connect(function()
+					if targetFeat.SelectTab then
+						targetFeat.SelectTab()
+					end
+					CloseSearch()
+					task.defer(function()
+						if targetFeat.Instance and targetFeat.ScrollingFrame then
+							local elY = targetFeat.Instance.AbsolutePosition.Y - targetFeat.ScrollingFrame.AbsolutePosition.Y + targetFeat.ScrollingFrame.CanvasPosition.Y
+							local targetY = math.max(0, elY - 20)
+							Tween(targetFeat.ScrollingFrame, TweenInfo.new(0.35, Enum.EasingStyle.Quad), {
+								CanvasPosition = Vector2.new(0, targetY)
+							}):Play()
+							local stroke = targetFeat.Instance:FindFirstChildOfClass("UIStroke")
+							if stroke then
+								local origColor = stroke.Color
+								local origTrans = stroke.Transparency
+								Tween(stroke, TweenInfo.new(0.2, Enum.EasingStyle.Quad), { Color = currentAccentColor, Transparency = 0.1 }):Play()
+								task.delay(1, function()
+									Tween(stroke, TweenInfo.new(0.5, Enum.EasingStyle.Quad), { Color = origColor, Transparency = origTrans }):Play()
+								end)
+							end
+						end
+					end)
+				end)
+			end
+		end
+
+		searchOverlayCount.Text = matchCount .. " found"
+		searchNoResults.Visible = (matchCount == 0)
+	end
+
+	searchInput:GetPropertyChangedSignal("Text"):Connect(function()
+		UpdateSearchResults(searchInput.Text)
+	end)
+
+	searchClear.MouseButton1Click:Connect(CloseSearch)
+
+	searchInput.Focused:Connect(function()
+		if searchInput.Text ~= "" then
+			searchOverlay.Visible = true
+		end
+		Tween(searchBarStroke, TweenInfo.new(0.2, Enum.EasingStyle.Quad), { Color = currentAccentColor, Transparency = 0.6 }):Play()
+		Tween(searchBar, TweenInfo.new(0.2, Enum.EasingStyle.Quad), { BackgroundTransparency = 0.9 }):Play()
+	end)
+
+	searchInput.FocusLost:Connect(function()
+		if searchInput.Text == "" then
+			Tween(searchBarStroke, TweenInfo.new(0.2, Enum.EasingStyle.Quad), { Color = Color3.fromRGB(255, 255, 255), Transparency = 0.9 }):Play()
+			Tween(searchBar, TweenInfo.new(0.2, Enum.EasingStyle.Quad), { BackgroundTransparency = 0.95 }):Play()
+		end
+	end)
+
+	UserInputService.InputBegan:Connect(function(input, gpe)
+		if not gpe and input.KeyCode == Enum.KeyCode.F and (UserInputService:IsKeyDown(Enum.KeyCode.LeftControl) or UserInputService:IsKeyDown(Enum.KeyCode.RightControl)) then
+			searchInput:CaptureFocus()
+		end
+		if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+			if searchOverlay.Visible then
+				local mPos = UserInputService:GetMouseLocation()
+				local absPos = searchOverlay.AbsolutePosition
+				local absSize = searchOverlay.AbsoluteSize
+				local barPos = searchBar.AbsolutePosition
+				local barSize = searchBar.AbsoluteSize
+				local inOverlay = (mPos.X >= absPos.X and mPos.X <= absPos.X + absSize.X and mPos.Y >= absPos.Y and mPos.Y <= absPos.Y + absSize.Y)
+				local inBar = (mPos.X >= barPos.X and mPos.X <= barPos.X + barSize.X and mPos.Y >= barPos.Y and mPos.Y <= barPos.Y + barSize.Y)
+				if not inOverlay and not inBar then
+					searchOverlay.Visible = false
+				end
+			end
+		end
+	end)
 
 	elements.Parent = topbar
 
@@ -1818,6 +2205,7 @@ function MacLib:Window(Settings)
 
 		function SectionFunctions:Tab(Settings)
 			local TabFunctions = {Settings = Settings}
+			local tabTitle = Settings.Name or "Tab"
 			local tabSwitcher = Instance.new("TextButton")
 			tabSwitcher.Name = "TabSwitcher"
 			tabSwitcher.FontFace = Font.new("rbxasset://fonts/families/SourceSansPro.json")
@@ -2056,6 +2444,7 @@ function MacLib:Window(Settings)
 
 			function TabFunctions:Section(Settings)
 				local SectionFunctions = {}
+				local sectionTitle = Settings.Name or "Section"
 				local section = Instance.new("Frame")
 				section.Name = "Section"
 				section.AutomaticSize = Enum.AutomaticSize.Y
@@ -2187,6 +2576,19 @@ function MacLib:Window(Settings)
 					end
 					function ButtonFunctions:SetVisibility(State)
 						button.Visible = State
+					end
+
+					if Settings.Name and Settings.Name ~= "" then
+						RegisterFeature({
+							Name = Settings.Name,
+							Description = Settings.Description,
+							Type = "Button",
+							TabName = tabTitle,
+							SectionName = sectionTitle,
+							Instance = button,
+							ScrollingFrame = elementsScrolling,
+							SelectTab = function() TabFunctions:Select() end
+						})
 					end
 
 					if Flag then
@@ -2335,6 +2737,19 @@ function MacLib:Window(Settings)
 					end
 					function ToggleFunctions:SetVisibility(State)
 						toggle.Visible = State
+					end
+
+					if Settings.Name and Settings.Name ~= "" then
+						RegisterFeature({
+							Name = Settings.Name,
+							Description = Settings.Description,
+							Type = "Toggle",
+							TabName = tabTitle,
+							SectionName = sectionTitle,
+							Instance = toggle,
+							ScrollingFrame = elementsScrolling,
+							SelectTab = function() TabFunctions:Select() end
+						})
 					end
 
 					if Flag then
@@ -2620,6 +3035,19 @@ function MacLib:Window(Settings)
 						return finalValue
 					end
 
+					if Settings.Name and Settings.Name ~= "" then
+						RegisterFeature({
+							Name = Settings.Name,
+							Description = Settings.Description,
+							Type = "Slider",
+							TabName = tabTitle,
+							SectionName = sectionTitle,
+							Instance = slider,
+							ScrollingFrame = elementsScrolling,
+							SelectTab = function() TabFunctions:Select() end
+						})
+					end
+
 					if Flag then
 						MacLib.Options[Flag] = SliderFunctions
 					end
@@ -2794,6 +3222,19 @@ function MacLib:Window(Settings)
 								InputFunctions.Settings.Callback(filteredText)
 							end
 						end)
+					end
+
+					if Settings.Name and Settings.Name ~= "" then
+						RegisterFeature({
+							Name = Settings.Name,
+							Description = Settings.Description,
+							Type = "Input",
+							TabName = tabTitle,
+							SectionName = sectionTitle,
+							Instance = input,
+							ScrollingFrame = elementsScrolling,
+							SelectTab = function() TabFunctions:Select() end
+						})
 					end
 
 					if Flag then
@@ -3007,6 +3448,19 @@ function MacLib:Window(Settings)
 
 					function KeybindFunctions:SetVisibility(State)
 						keybind.Visible = State
+					end
+
+					if Settings.Name and Settings.Name ~= "" then
+						RegisterFeature({
+							Name = Settings.Name,
+							Description = Settings.Description,
+							Type = "Keybind",
+							TabName = tabTitle,
+							SectionName = sectionTitle,
+							Instance = keybind,
+							ScrollingFrame = elementsScrolling,
+							SelectTab = function() TabFunctions:Select() end
+						})
 					end
 
 					if Flag then
@@ -3579,6 +4033,19 @@ function MacLib:Window(Settings)
 					function DropdownFunctions:IsOption(optionName)
 						if not optionName then return end
 						return OptionObjs[optionName] ~= nil
+					end
+
+					if Settings.Name and Settings.Name ~= "" then
+						RegisterFeature({
+							Name = Settings.Name,
+							Description = Settings.Description,
+							Type = "Dropdown",
+							TabName = tabTitle,
+							SectionName = sectionTitle,
+							Instance = dropdown,
+							ScrollingFrame = elementsScrolling,
+							SelectTab = function() TabFunctions:Select() end
+						})
 					end
 
 					if Flag then
@@ -4874,6 +5341,19 @@ function MacLib:Window(Settings)
 						updateFromSettings()
 					end
 
+					if Settings.Name and Settings.Name ~= "" then
+						RegisterFeature({
+							Name = Settings.Name,
+							Description = Settings.Description,
+							Type = "Colorpicker",
+							TabName = tabTitle,
+							SectionName = sectionTitle,
+							Instance = colorpicker,
+							ScrollingFrame = elementsScrolling,
+							SelectTab = function() TabFunctions:Select() end
+						})
+					end
+
 					if Flag then
 						MacLib.Options[Flag] = ColorpickerFunctions
 					end
@@ -6084,12 +6564,34 @@ function MacLib:Window(Settings)
 			if globalSettingsButton then
 				globalSettingsButton.ImageColor3 = color
 			end
+			if searchIcon then
+				searchIcon.ImageColor3 = color
+			end
+			if searchOverlayCount then
+				searchOverlayCount.TextColor3 = color
+			end
+			if searchOverlayScroll then
+				searchOverlayScroll.ScrollBarImageColor3 = color
+			end
 			for _, tabData in ipairs(registeredTabs) do
 				if tabData.image then
 					tabData.image.ImageColor3 = color
 				end
 			end
 		end
+	end
+
+	function WindowFunctions:Search(query)
+		if query then
+			searchInput.Text = query
+			UpdateSearchResults(query)
+		else
+			CloseSearch()
+		end
+	end
+
+	function WindowFunctions:GetFeatures()
+		return registeredFeatures
 	end
 	function WindowFunctions:GetAccentColor()
 		return currentAccentColor
