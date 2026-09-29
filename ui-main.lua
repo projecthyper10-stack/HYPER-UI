@@ -984,14 +984,12 @@ function MacLib:Window(Settings)
 	end)
 
 	local dragging_ = false
-	local dragInput
-	local dragStart
-	local startPos
+	local dragStart = Vector3.new()
+	local startPos = UDim2.new()
 
 	local function update(input)
 		local delta = input.Position - dragStart
-		local targetPos = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X, startPos.Y.Scale, startPos.Y.Offset + delta.Y)
-		Tween(base, TweenInfo.new(0.08, Enum.EasingStyle.Sine, Enum.EasingDirection.Out), {Position = targetPos}):Play()
+		base.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X, startPos.Y.Scale, startPos.Y.Offset + delta.Y)
 	end
 
 	local function onDragStart(input)
@@ -999,74 +997,33 @@ function MacLib:Window(Settings)
 			dragging_ = true
 			dragStart = input.Position
 			startPos = base.Position
-
-			input.Changed:Connect(function()
-				if input.UserInputState == Enum.UserInputState.End then
-					dragging_ = false
-				end
-			end)
 		end
 	end
 
-	local function onDragUpdate(input)
+	UserInputService.InputChanged:Connect(function(input)
 		if dragging_ and (input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch) then
-			dragInput = input
+			update(input)
 		end
-	end
+	end)
+
+	UserInputService.InputEnded:Connect(function(input)
+		if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+			dragging_ = false
+		end
+	end)
 
 	if not Settings.DragStyle or Settings.DragStyle == 1 then
-		interact.InputBegan:Connect(function(input)
-			if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
-				onDragStart(input)
-			end
-		end)
+		interact.InputBegan:Connect(onDragStart)
 		
 		-- Add extra frames for easier dragging
 		local draggableFrames = {information, titleFrame}
 		for _, frame in ipairs(draggableFrames) do
 			if frame then
-				frame.InputBegan:Connect(function(input)
-					if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
-						onDragStart(input)
-					end
-				end)
-				frame.InputChanged:Connect(onDragUpdate)
+				frame.InputBegan:Connect(onDragStart)
 			end
 		end
-
-		interact.InputChanged:Connect(onDragUpdate)
-
-		UserInputService.InputChanged:Connect(function(input)
-			if input == dragInput and dragging_ then
-				update(input)
-			end
-		end)
-
-		interact.InputEnded:Connect(function(input)
-			if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
-				dragging_ = false
-			end
-		end)
 	elseif Settings.DragStyle == 2 then
-		base.InputBegan:Connect(function(input)
-			if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
-				onDragStart(input)
-			end
-		end)
-
-		base.InputChanged:Connect(onDragUpdate)
-
-		UserInputService.InputChanged:Connect(function(input)
-			if input == dragInput and dragging_ then
-				update(input)
-			end
-		end)
-
-		base.InputEnded:Connect(function(input)
-			if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
-				dragging_ = false
-			end
-		end)
+		base.InputBegan:Connect(onDragStart)
 	end
 
 	local currentTab = Instance.new("TextLabel")
@@ -1155,6 +1112,8 @@ function MacLib:Window(Settings)
 	globalSettings.BackgroundColor3 = Color3.fromRGB(15, 15, 15)
 	globalSettings.BorderColor3 = Color3.fromRGB(0, 0, 0)
 	globalSettings.BorderSizePixel = 0
+	globalSettings.ZIndex = 50
+	globalSettings.AnchorPoint = Vector2.new(0, 0)
 	globalSettings.Position = UDim2.fromScale(0.298, 0.104)
 
 	local globalSettingsUIStroke = Instance.new("UIStroke")
@@ -1188,6 +1147,31 @@ function MacLib:Window(Settings)
 	globalSettings.Parent = base
 	base.Parent = macLib
 
+	local function UpdateGlobalSettingsPosition()
+		if not globalSettingsButton or not base or not globalSettings then return end
+		local btnPos = globalSettingsButton.AbsolutePosition
+		local basePos = base.AbsolutePosition
+		local relX = btnPos.X - basePos.X
+		local relY = btnPos.Y - basePos.Y
+		local btnW = globalSettingsButton.AbsoluteSize.X
+		local btnH = globalSettingsButton.AbsoluteSize.Y
+
+		local posX = relX + btnW + 8
+		local posY = relY - 4
+
+		local maxX = base.AbsoluteSize.X - 220
+		if posX > maxX then
+			posX = math.max(10, relX - 210)
+		end
+		local maxY = base.AbsoluteSize.Y - 110
+		if posY > maxY then
+			posY = math.max(10, maxY)
+		end
+
+		globalSettings.AnchorPoint = Vector2.new(0, 0)
+		globalSettings.Position = UDim2.fromOffset(posX, posY)
+	end
+
 	function WindowFunctions:UpdateTitle(NewTitle)
 		title.Text = NewTitle
 	end
@@ -1200,6 +1184,7 @@ function MacLib:Window(Settings)
 	local toggled = globalSettingsUIScale.Scale == 1 and true or false
 	local function toggle()
 		if not toggled then
+			UpdateGlobalSettingsPosition()
 			local intween = Tween(globalSettingsUIScale, TweenInfo.new(0.2, Enum.EasingStyle.Exponential, Enum.EasingDirection.Out), {
 				Scale = 1
 			})
@@ -1228,6 +1213,22 @@ function MacLib:Window(Settings)
 	UserInputService.InputEnded:Connect(function(inp)
 		if inp.UserInputType == Enum.UserInputType.MouseButton1 and toggled and not hovering then
 			toggle()
+		end
+	end)
+
+	globalSettingsButton:GetPropertyChangedSignal("AbsolutePosition"):Connect(function()
+		if toggled then
+			UpdateGlobalSettingsPosition()
+		end
+	end)
+	sidebar:GetPropertyChangedSignal("AbsoluteSize"):Connect(function()
+		if toggled then
+			UpdateGlobalSettingsPosition()
+		end
+	end)
+	base:GetPropertyChangedSignal("AbsoluteSize"):Connect(function()
+		if toggled then
+			UpdateGlobalSettingsPosition()
 		end
 	end)
 
@@ -1470,6 +1471,7 @@ function MacLib:Window(Settings)
 		globalSetting.BorderColor3 = Color3.fromRGB(0, 0, 0)
 		globalSetting.BorderSizePixel = 0
 		globalSetting.Size = UDim2.fromOffset(200, 30)
+		globalSetting.ZIndex = 51
 
 		local globalSettingToggleUIPadding = Instance.new("UIPadding")
 		globalSettingToggleUIPadding.Name = "GlobalSettingToggleUIPadding"
@@ -1495,6 +1497,7 @@ function MacLib:Window(Settings)
 		settingName.BorderSizePixel = 0
 		settingName.Position = UDim2.fromScale(1.3e-07, 0.5)
 		settingName.Size = UDim2.new(1,-40,0,0)
+		settingName.ZIndex = 52
 		settingName.Parent = globalSetting
 
 		local globalSettingToggleUIListLayout = Instance.new("UIListLayout")
@@ -1527,6 +1530,7 @@ function MacLib:Window(Settings)
 		checkmark.LayoutOrder = -1
 		checkmark.Position = UDim2.fromScale(1.3e-07, 0.5)
 		checkmark.Size = UDim2.fromOffset(-10, 0)
+		checkmark.ZIndex = 52
 		checkmark.Parent = globalSetting
 
 		globalSetting.Parent = globalSettings
