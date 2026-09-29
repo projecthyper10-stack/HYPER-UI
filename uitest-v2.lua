@@ -255,6 +255,22 @@ sections.SettingsMain:Dropdown({
     end
 }, "ClosedUIStyle")
 
+sections.SettingsMain:Keybind({
+    Name = "Toggle Keybind",
+    Description = "Key used to open and close the interface.",
+    Default = Enum.KeyCode.RightControl,
+    onBinded = function(key)
+        if Window and Window.SetKeybind then
+            Window:SetKeybind(key)
+        end
+    end,
+    Callback = function(key)
+        if Window and Window.SetKeybind then
+            Window:SetKeybind(key)
+        end
+    end
+}, "MenuKeybind")
+
 sections.SettingsMain:Colorpicker({
     Name = "Accent Color",
     Description = "Change the UI theme color (WIP).",

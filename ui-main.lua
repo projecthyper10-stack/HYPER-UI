@@ -2782,6 +2782,7 @@ function MacLib:Window(Settings)
 					local isBinding = false
 					local reset = false
 					local binded = KeybindFunctions.Settings.Default
+					KeybindFunctions.BindValue = binded
 
 					local function resetFocusState()
 						focused = false
@@ -2790,7 +2791,7 @@ function MacLib:Window(Settings)
 					end
 
 					if binded then
-						binderBox.Text = binded.Name
+						binderBox.Text = (typeof(binded) == "EnumItem" and binded.Name) or tostring(binded)
 					end
 
 					binderBox.Focused:Connect(function()
@@ -2807,7 +2808,7 @@ function MacLib:Window(Settings)
 
 							local Event
 							Event = UserInputService.InputBegan:Connect(function(input)
-								if KeybindFunctions.Settings.Blacklist and (table.find(KeybindFunctions.KeybindFunctions.Settings.Blacklist, input.KeyCode) or table.find(KeybindFunctions.Settings.Blacklist, input.UserInputType)) then
+								if KeybindFunctions.Settings.Blacklist and (table.find(KeybindFunctions.Settings.Blacklist, input.KeyCode) or table.find(KeybindFunctions.Settings.Blacklist, input.UserInputType)) then
 									binderBox:ReleaseFocus()
 									resetFocusState()
 									Event:Disconnect()
@@ -2821,9 +2822,22 @@ function MacLib:Window(Settings)
 									binded = input.UserInputType
 									binderBox.Text = input.UserInputType.Name
 								end
+								KeybindFunctions.BindValue = binded
 
 								if KeybindFunctions.Settings.onBinded then
-									KeybindFunctions.Settings.onBinded(binded)
+									task.spawn(function()
+										KeybindFunctions.Settings.onBinded(binded)
+									end)
+								end
+								if KeybindFunctions.Settings.OnKeyChanged then
+									task.spawn(function()
+										KeybindFunctions.Settings.OnKeyChanged(binded)
+									end)
+								end
+								if KeybindFunctions.Settings.Callback then
+									task.spawn(function()
+										KeybindFunctions.Settings.Callback(binded)
+									end)
 								end
 								reset = true
 								resetFocusState()
@@ -2855,7 +2869,27 @@ function MacLib:Window(Settings)
 
 					function KeybindFunctions:Bind(Key)
 						binded = Key
-						binderBox.Text = Key.Name
+						KeybindFunctions.BindValue = binded
+						if typeof(Key) == "EnumItem" then
+							binderBox.Text = Key.Name
+						else
+							binderBox.Text = tostring(Key or "")
+						end
+						if KeybindFunctions.Settings.onBinded then
+							task.spawn(function()
+								KeybindFunctions.Settings.onBinded(binded)
+							end)
+						end
+						if KeybindFunctions.Settings.OnKeyChanged then
+							task.spawn(function()
+								KeybindFunctions.Settings.OnKeyChanged(binded)
+							end)
+						end
+						if KeybindFunctions.Settings.Callback then
+							task.spawn(function()
+								KeybindFunctions.Settings.Callback(binded)
+							end)
+						end
 					end
 
 					function KeybindFunctions:Unbind()
@@ -5804,16 +5838,17 @@ function MacLib:Window(Settings)
 	local function ToggleMenu()
 		local state = not WindowFunctions:GetState()
 		WindowFunctions:SetState(state)
+		local keyName = (typeof(MenuKeybind) == "EnumItem" and MenuKeybind.Name) or tostring(MenuKeybind or "key")
 		WindowFunctions:Notify({
 			Title = Settings.Title,
-			Description = (state and "Maximized " or "Minimized ") .. "the menu. Use " .. tostring(MenuKeybind.Name) .. " to toggle it.",
-			Lifetime = 5
+			Description = (state and "Maximized " or "Minimized ") .. "the menu. Use " .. keyName .. " to toggle it.",
+			Lifetime = 3
 		})
 	end
 
 	UserInputService.InputEnded:Connect(function(inp, gpe)
 		if gpe then return end
-		if inp.KeyCode == MenuKeybind then
+		if MenuKeybind and (inp.KeyCode == MenuKeybind or inp.UserInputType == MenuKeybind) then
 			ToggleMenu()
 		end
 	end)
@@ -5839,7 +5874,19 @@ function MacLib:Window(Settings)
 	end)
 
 	function WindowFunctions:SetKeybind(Keycode)
-		MenuKeybind = Keycode
+		if typeof(Keycode) == "EnumItem" then
+			MenuKeybind = Keycode
+		elseif type(Keycode) == "string" and Enum.KeyCode[Keycode] then
+			MenuKeybind = Enum.KeyCode[Keycode]
+		end
+	end
+
+	function WindowFunctions:GetKeybind()
+		return MenuKeybind
+	end
+
+	function WindowFunctions:Toggle()
+		ToggleMenu()
 	end
 
 	function WindowFunctions:SetAcrylicBlurState(State)
@@ -5964,10 +6011,11 @@ function MacLib:Window(Settings)
 		},
 		["Keybind"] = {
 			Save = function(Flag, data)
+				local bindVal = (data.GetBind and data:GetBind()) or data.BindValue
 				return {
 					type = "Keybind", 
 					flag = Flag, 
-					bind = (typeof(data.Bind) == "EnumItem" and data.Bind.Name) or nil
+					bind = (typeof(bindVal) == "EnumItem" and bindVal.Name) or nil
 				}
 			end,
 			Load = function(Flag, data)
