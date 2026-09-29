@@ -196,7 +196,7 @@ function MacLib:Window(Settings)
 	base.BorderColor3 = Color3.fromRGB(0, 0, 0)
 	base.BorderSizePixel = 0
 	base.Position = UDim2.fromScale(0.5, 0.5)
-	base.Size = Settings.Size or UDim2.fromOffset(780, 500)
+	base.Size = Settings.Size or UDim2.fromOffset(710, 450)
 
 	local baseUIScale = Instance.new("UIScale")
 	baseUIScale.Name = "BaseUIScale"
@@ -242,7 +242,7 @@ function MacLib:Window(Settings)
 	sidebar.BorderColor3 = Color3.fromRGB(0, 0, 0)
 	sidebar.BorderSizePixel = 0
 	sidebar.Position = UDim2.fromScale(-3.52e-08, 4.69e-08)
-	sidebar.Size = UDim2.fromScale(0.3, 1)
+	sidebar.Size = UDim2.fromScale(0.26, 1)
 
 	local divider = Instance.new("Frame")
 	divider.Name = "Divider"
@@ -756,8 +756,88 @@ function MacLib:Window(Settings)
 
 	local resizingContent = false
 	local initialMouseX, initialSidebarWidth
-	local snapRange = 20
-	local minSidebarWidth = 107
+	local snapRange = 15
+	local minSidebarWidth = 50
+
+	local registeredTabs = {}
+	local registeredDividers = {}
+	local isSidebarCollapsed = false
+
+	local function UpdateSidebarCollapse(width)
+		local shouldCollapse = width < 115
+		if shouldCollapse == isSidebarCollapsed then return end
+		isSidebarCollapsed = shouldCollapse
+
+		if shouldCollapse then
+			for _, tabData in ipairs(registeredTabs) do
+				if tabData.name then tabData.name.Visible = false end
+				if tabData.padding then
+					tabData.padding.PaddingLeft = UDim.new(0, 0)
+					tabData.padding.PaddingRight = UDim.new(0, 0)
+				end
+				if tabData.layout then
+					tabData.layout.HorizontalAlignment = Enum.HorizontalAlignment.Center
+				end
+				if tabData.button then
+					tabData.button.Size = UDim2.new(0, 36, 0, 36)
+				end
+			end
+			for _, div in ipairs(registeredDividers) do
+				div.Size = UDim2.new(0, 30, 0, 1)
+			end
+			if userAndDisplayFrame then userAndDisplayFrame.Visible = false end
+			if informationGroupUIPadding then informationGroupUIPadding.PaddingLeft = UDim.new(0, 0) end
+			if informationGroupUIListLayout then informationGroupUIListLayout.HorizontalAlignment = Enum.HorizontalAlignment.Center end
+			if title then title.Visible = false end
+			if subtitle then subtitle.Visible = false end
+			if globalSettingsButton then
+				globalSettingsButton.AnchorPoint = Vector2.new(0.5, 0.5)
+				globalSettingsButton.Position = UDim2.fromScale(0.5, 0.5)
+			end
+			if informationHolderUIPadding then
+				informationHolderUIPadding.PaddingLeft = UDim.new(0, 0)
+				informationHolderUIPadding.PaddingRight = UDim.new(0, 0)
+			end
+			if uIPadding then uIPadding.PaddingLeft = UDim.new(0, 0) end
+			if uIListLayout then uIListLayout.HorizontalAlignment = Enum.HorizontalAlignment.Center end
+		else
+			for _, tabData in ipairs(registeredTabs) do
+				if tabData.name then tabData.name.Visible = true end
+				if tabData.padding then
+					tabData.padding.PaddingLeft = UDim.new(0, 24)
+					tabData.padding.PaddingRight = UDim.new(0, 35)
+				end
+				if tabData.layout then
+					tabData.layout.HorizontalAlignment = Enum.HorizontalAlignment.Left
+				end
+				if tabData.button then
+					tabData.button.Size = UDim2.new(1, -21, 0, 40)
+				end
+			end
+			for _, div in ipairs(registeredDividers) do
+				div.Size = UDim2.new(1, -21, 0, 1)
+			end
+			if userAndDisplayFrame then userAndDisplayFrame.Visible = true end
+			if informationGroupUIPadding then informationGroupUIPadding.PaddingLeft = UDim.new(0, 25) end
+			if informationGroupUIListLayout then informationGroupUIListLayout.HorizontalAlignment = Enum.HorizontalAlignment.Left end
+			if title then title.Visible = true end
+			if subtitle then subtitle.Visible = true end
+			if globalSettingsButton then
+				globalSettingsButton.AnchorPoint = Vector2.new(1, 0.5)
+				globalSettingsButton.Position = UDim2.fromScale(1, 0.5)
+			end
+			if informationHolderUIPadding then
+				informationHolderUIPadding.PaddingLeft = UDim.new(0, 23)
+				informationHolderUIPadding.PaddingRight = UDim.new(0, 22)
+			end
+			if uIPadding then uIPadding.PaddingLeft = UDim.new(0, 11) end
+			if uIListLayout then uIListLayout.HorizontalAlignment = Enum.HorizontalAlignment.Left end
+		end
+	end
+
+	sidebar:GetPropertyChangedSignal("AbsoluteSize"):Connect(function()
+		UpdateSidebarCollapse(sidebar.AbsoluteSize.X)
+	end)
 
 	local TweenSettings = {
 		DefaultTransparency = 0.9,
@@ -796,8 +876,8 @@ function MacLib:Window(Settings)
 			local deltaX = UserInputService:GetMouseLocation().X - initialMouseX
 			local newSidebarWidth = initialSidebarWidth + deltaX
 			
-			local defaultSidebarWidth = base.AbsoluteSize.X * 0.325
-			local maxSidebarWidth = base.AbsoluteSize.X - minSidebarWidth
+			local defaultSidebarWidth = base.AbsoluteSize.X * 0.26
+			local maxSidebarWidth = base.AbsoluteSize.X - 250
 
 			if math.abs(newSidebarWidth - defaultSidebarWidth) < snapRange then
 				newSidebarWidth = defaultSidebarWidth
@@ -807,6 +887,7 @@ function MacLib:Window(Settings)
 
 			sidebar.Size = UDim2.new(0, newSidebarWidth, 1, 0)
 			content.Size = UDim2.new(0, base.AbsoluteSize.X - newSidebarWidth, 1, 0)
+			UpdateSidebarCollapse(newSidebarWidth)
 		end
 	end)
 
@@ -1532,6 +1613,11 @@ function MacLib:Window(Settings)
 		divider3.Size = UDim2.new(1, -21, 0, 1)
 		divider3.Parent = tabGroup
 
+		table.insert(registeredDividers, divider3)
+		if isSidebarCollapsed then
+			divider3.Size = UDim2.new(0, 30, 0, 1)
+		end
+
 		local sectionTabSwitchers = Instance.new("Frame")
 		sectionTabSwitchers.Name = "SectionTabSwitchers"
 		sectionTabSwitchers.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
@@ -1642,6 +1728,21 @@ function MacLib:Window(Settings)
 			tabSwitcherUIPadding.Parent = tabSwitcher
 
 			tabSwitcher.Parent = sectionTabSwitchers
+
+			table.insert(registeredTabs, {
+				button = tabSwitcher,
+				name = tabSwitcherName,
+				padding = tabSwitcherUIPadding,
+				layout = tabSwitcherUIListLayout,
+				image = tabImage
+			})
+			if isSidebarCollapsed then
+				tabSwitcherName.Visible = false
+				tabSwitcherUIPadding.PaddingLeft = UDim.new(0, 0)
+				tabSwitcherUIPadding.PaddingRight = UDim.new(0, 0)
+				tabSwitcherUIListLayout.HorizontalAlignment = Enum.HorizontalAlignment.Center
+				tabSwitcher.Size = UDim2.new(0, 36, 0, 36)
+			end
 
 			local elements1 = Instance.new("Frame")
 			elements1.Name = "Elements"

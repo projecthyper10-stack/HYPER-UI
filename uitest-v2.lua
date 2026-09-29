@@ -90,7 +90,7 @@ else warn("[MacLib] Failed to load: " .. tostring(resLoad)) return end
 local Window = MacLib:Window({
     Title = "Slayers2",
     Subtitle = "Primary",
-    Size = UDim2.fromOffset(780, 500),
+    Size = UDim2.fromOffset(710, 450),
     DragStyle = 1,
     DisabledWindowControls = {},
     ShowUserInfo = true,
