@@ -243,7 +243,8 @@ function MacLib:Window(Settings)
 	sidebar.BorderColor3 = Color3.fromRGB(0, 0, 0)
 	sidebar.BorderSizePixel = 0
 	sidebar.Position = UDim2.fromScale(-3.52e-08, 4.69e-08)
-	sidebar.Size = UDim2.fromScale(0.26, 1)
+	local initialSidebarWidth = math.round(Settings.SidebarWidth or 185)
+	sidebar.Size = UDim2.new(0, initialSidebarWidth, 1, 0)
 
 	local divider = Instance.new("Frame")
 	divider.Name = "Divider"
@@ -773,18 +774,31 @@ function MacLib:Window(Settings)
 	content.BorderColor3 = Color3.fromRGB(0, 0, 0)
 	content.BorderSizePixel = 0
 	content.Position = UDim2.fromScale(1, 0)
+	content.Size = UDim2.new(1, -initialSidebarWidth, 1, 0)
+
 	local function UpdateContentSize()
-		local curBaseW = base.AbsoluteSize.X
-		local curSideW = sidebar.AbsoluteSize.X
-		if curBaseW > 0 then
-			local availableWidth = math.max(curBaseW - curSideW, 100)
-			content.Size = UDim2.new(0, availableWidth, 1, 0)
+		local scale = (baseUIScale and baseUIScale.Scale > 0) and baseUIScale.Scale or 1
+		local curSideW = sidebar.Size.X.Offset
+		if curSideW <= 0 then
+			if sidebar.Size.X.Scale > 0 then
+				local unscaledBase = (base.Size.X.Offset > 0) and base.Size.X.Offset or (base.AbsoluteSize.X / scale)
+				curSideW = math.round(unscaledBase * sidebar.Size.X.Scale)
+			else
+				curSideW = math.round(sidebar.AbsoluteSize.X / scale)
+			end
 		end
+		content.Size = UDim2.new(1, -curSideW, 1, 0)
 	end
 
 	UpdateContentSize()
 	base:GetPropertyChangedSignal("AbsoluteSize"):Connect(UpdateContentSize)
 	sidebar:GetPropertyChangedSignal("AbsoluteSize"):Connect(UpdateContentSize)
+	baseUIScale:GetPropertyChangedSignal("Scale"):Connect(function()
+		UpdateContentSize()
+		if UpdateGlobalSettingsPosition then
+			UpdateGlobalSettingsPosition()
+		end
+	end)
 
 	local resizingContent = false
 	local initialMouseX, initialSidebarWidth
@@ -876,7 +890,8 @@ function MacLib:Window(Settings)
 	end
 
 	sidebar:GetPropertyChangedSignal("AbsoluteSize"):Connect(function()
-		UpdateSidebarCollapse(sidebar.AbsoluteSize.X)
+		local scale = (baseUIScale and baseUIScale.Scale > 0) and baseUIScale.Scale or 1
+		UpdateSidebarCollapse(sidebar.AbsoluteSize.X / scale)
 	end)
 
 	local TweenSettings = {
@@ -910,7 +925,8 @@ function MacLib:Window(Settings)
 		if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
 			resizingContent = true
 			initialMouseX = input.Position.X
-			initialSidebarWidth = sidebar.AbsoluteSize.X
+			local scale = (baseUIScale and baseUIScale.Scale > 0) and baseUIScale.Scale or 1
+			initialSidebarWidth = sidebar.Size.X.Offset > 0 and sidebar.Size.X.Offset or (sidebar.AbsoluteSize.X / scale)
 			ChangeState("Active")
 		end
 	end)
@@ -926,15 +942,17 @@ function MacLib:Window(Settings)
 
 	UserInputService.InputChanged:Connect(function(input)
 		if resizingContent and (input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch) then
-			local deltaX = input.Position.X - initialMouseX
+			local scale = (baseUIScale and baseUIScale.Scale > 0) and baseUIScale.Scale or 1
+			local deltaX = (input.Position.X - initialMouseX) / scale
 			local newSidebarWidth = initialSidebarWidth + deltaX
 			
-			local currentMax = math.min(maxSidebarWidth, base.AbsoluteSize.X - 200)
+			local unscaledBaseW = base.Size.X.Offset > 0 and base.Size.X.Offset or (base.AbsoluteSize.X / scale)
+			local currentMax = math.min(maxSidebarWidth, unscaledBaseW - 200)
 			newSidebarWidth = math.clamp(newSidebarWidth, minSidebarWidth, currentMax)
 
 			local tweenInfo = TweenInfo.new(0.04, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
 			Tween(sidebar, tweenInfo, { Size = UDim2.new(0, newSidebarWidth, 1, 0) }):Play()
-			Tween(content, tweenInfo, { Size = UDim2.new(0, base.AbsoluteSize.X - newSidebarWidth, 1, 0) }):Play()
+			Tween(content, tweenInfo, { Size = UDim2.new(1, -newSidebarWidth, 1, 0) }):Play()
 			UpdateSidebarCollapse(newSidebarWidth)
 		end
 	end)
@@ -1121,15 +1139,19 @@ function MacLib:Window(Settings)
 		if inp.UserInputType == Enum.UserInputType.MouseButton1 or inp.UserInputType == Enum.UserInputType.Touch then
 			isResizingWindow = true
 			resizeStartMouse = Vector2.new(inp.Position.X, inp.Position.Y)
-			resizeStartWinSize = Vector2.new(base.AbsoluteSize.X, base.AbsoluteSize.Y)
+			local scale = (baseUIScale and baseUIScale.Scale > 0) and baseUIScale.Scale or 1
+			local currentW = base.Size.X.Offset > 0 and base.Size.X.Offset or (base.AbsoluteSize.X / scale)
+			local currentH = base.Size.Y.Offset > 0 and base.Size.Y.Offset or (base.AbsoluteSize.Y / scale)
+			resizeStartWinSize = Vector2.new(currentW, currentH)
 			Tween(resizeGrip, TweenInfo.new(0.15), { ImageTransparency = 0.2 }):Play()
 		end
 	end)
 
 	UserInputService.InputChanged:Connect(function(inp)
 		if isResizingWindow and (inp.UserInputType == Enum.UserInputType.MouseMovement or inp.UserInputType == Enum.UserInputType.Touch) then
-			local deltaX = inp.Position.X - resizeStartMouse.X
-			local deltaY = inp.Position.Y - resizeStartMouse.Y
+			local scale = (baseUIScale and baseUIScale.Scale > 0) and baseUIScale.Scale or 1
+			local deltaX = (inp.Position.X - resizeStartMouse.X) / scale
+			local deltaY = (inp.Position.Y - resizeStartMouse.Y) / scale
 			local newW = math.clamp(resizeStartWinSize.X + deltaX, 580, 850)
 			local newH = math.clamp(resizeStartWinSize.Y + deltaY, 380, 560)
 			base.Size = UDim2.fromOffset(newW, newH)
@@ -1187,21 +1209,22 @@ function MacLib:Window(Settings)
 
 	local function UpdateGlobalSettingsPosition()
 		if not globalSettingsButton or not base or not globalSettings then return end
+		local scale = (baseUIScale and baseUIScale.Scale > 0) and baseUIScale.Scale or 1
 		local btnPos = globalSettingsButton.AbsolutePosition
 		local basePos = base.AbsolutePosition
-		local relX = btnPos.X - basePos.X
-		local relY = btnPos.Y - basePos.Y
-		local btnW = globalSettingsButton.AbsoluteSize.X
-		local btnH = globalSettingsButton.AbsoluteSize.Y
+		local relX = (btnPos.X - basePos.X) / scale
+		local relY = (btnPos.Y - basePos.Y) / scale
+		local btnW = globalSettingsButton.AbsoluteSize.X / scale
+		local btnH = globalSettingsButton.AbsoluteSize.Y / scale
 
 		local posX = relX + btnW + 8
 		local posY = relY - 4
 
-		local maxX = base.AbsoluteSize.X - 220
+		local maxX = (base.AbsoluteSize.X / scale) - 220
 		if posX > maxX then
 			posX = math.max(10, relX - 210)
 		end
-		local maxY = base.AbsoluteSize.Y - 110
+		local maxY = (base.AbsoluteSize.Y / scale) - 110
 		if posY > maxY then
 			posY = math.max(10, maxY)
 		end
@@ -4437,16 +4460,21 @@ function MacLib:Window(Settings)
 					end
 
 					local function UpdateSlide(iX)
-						local rY = iX - slider.AbsolutePosition.X
-						local cY = math.clamp(rY, 0, slider.AbsoluteSize.X - slide.AbsoluteSize.X)
-						slide.Position = udim2(0, cY, 0.5, 0)
-						value = 1 - (cY / (slider.AbsoluteSize.X - slide.AbsoluteSize.X))
-						update()
+						local scale = (baseUIScale and baseUIScale.Scale > 0) and baseUIScale.Scale or 1
+						local rY = (iX - slider.AbsolutePosition.X) / scale
+						local totalW = (slider.AbsoluteSize.X - slide.AbsoluteSize.X) / scale
+						if totalW > 0 then
+							local cY = math.clamp(rY, 0, totalW)
+							slide.Position = udim2(0, cY, 0.5, 0)
+							value = 1 - (cY / totalW)
+							update()
+						end
 					end
 
 					local function UpdateRing(iX, iY)
-						local r = wheel.AbsoluteSize.x / 2
-						local d = v2(iX, iY) - wheel.AbsolutePosition - wheel.AbsoluteSize / 2
+						local scale = (baseUIScale and baseUIScale.Scale > 0) and baseUIScale.Scale or 1
+						local r = (wheel.AbsoluteSize.x / 2) / scale
+						local d = (v2(iX, iY) - wheel.AbsolutePosition - wheel.AbsoluteSize / 2) / scale
 
 						if d:Dot(d) > r * r then
 							d = d.unit * r
@@ -4460,12 +4488,15 @@ function MacLib:Window(Settings)
 					end
 
 					local function UpdateSlideFromValue(value)
-						local cY = (1 - value) * (slider.AbsoluteSize.X - slide.AbsoluteSize.X)
+						local scale = (baseUIScale and baseUIScale.Scale > 0) and baseUIScale.Scale or 1
+						local totalW = (slider.AbsoluteSize.X - slide.AbsoluteSize.X) / scale
+						local cY = (1 - value) * totalW
 						slide.Position = UDim2.new(0, cY, 0.5, 0)
 					end
 
 					local function UpdateRingFromHSV(hue, saturation)
-						local r = wheel.AbsoluteSize.X / 2
+						local scale = (baseUIScale and baseUIScale.Scale > 0) and baseUIScale.Scale or 1
+						local r = (wheel.AbsoluteSize.X / 2) / scale
 						local phi = degToRad(hue * 360)
 						local len = saturation * r
 						local x = len * math.cos(phi)
@@ -5713,6 +5744,7 @@ function MacLib:Window(Settings)
 		end
 	end
 
+	local targetUserScale = 1.0
 	local isTogglingWindowState = false
 	function WindowFunctions:SetState(State)
 		if isTogglingWindowState then return end
@@ -5722,14 +5754,14 @@ function MacLib:Window(Settings)
 			if closedUIStyle == "Breadcrumb" then
 				breadcrumb.Visible = false
 			end
-			baseUIScale.Scale = 0.92
+			baseUIScale.Scale = targetUserScale * 0.92
 			Tween(baseUIScale, TweenInfo.new(0.28, Enum.EasingStyle.Back, Enum.EasingDirection.Out), {
-				Scale = 1
+				Scale = targetUserScale
 			}):Play()
 		else
 			isTogglingWindowState = true
 			local outTween = Tween(baseUIScale, TweenInfo.new(0.18, Enum.EasingStyle.Quad, Enum.EasingDirection.In), {
-				Scale = 0.92
+				Scale = targetUserScale * 0.92
 			})
 			outTween:Play()
 			outTween.Completed:Connect(function()
@@ -5876,10 +5908,15 @@ function MacLib:Window(Settings)
 	end
 
 	function WindowFunctions:SetScale(Scale)
+		targetUserScale = Scale
 		baseUIScale.Scale = Scale
+		UpdateContentSize()
+		if UpdateGlobalSettingsPosition then
+			UpdateGlobalSettingsPosition()
+		end
 	end
 	function WindowFunctions:GetScale()
-		return baseUIScale.Scale
+		return targetUserScale
 	end
 
 	local ClassParser = {
