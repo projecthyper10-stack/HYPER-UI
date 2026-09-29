@@ -339,9 +339,7 @@ function MacLib:Window(Settings)
 		end
 	end
 
-	applyState(maximize, false)
-
-	local controlsList = {exit, minimize}
+	local controlsList = {exit, minimize, maximize}
 	for _, button in pairs(controlsList) do
 		local buttonName = button.Name
 		local isEnabled = true
