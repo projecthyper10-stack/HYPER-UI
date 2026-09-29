@@ -90,6 +90,7 @@ else warn("[MacLib] Failed to load: " .. tostring(resLoad)) return end
 local Window = MacLib:Window({
     Title = "Slayers2",
     Subtitle = "Primary",
+    Logo = "rbxassetid://136264753381080",
     Size = UDim2.fromOffset(710, 450),
     DragStyle = 1,
     SidebarMinSize = 50,

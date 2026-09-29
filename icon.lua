@@ -17,6 +17,7 @@ IconEngine.Assets = {
 	colorTarget = "rbxassetid://73265255323268",
 	grid = "rbxassetid://121484455191370",
 	globe = "rbxassetid://108952102602834",
+	logo = "rbxassetid://136264753381080",
 	transform = "rbxassetid://90336395745819",
 	dropdown = "rbxassetid://18865373378",
 	sliderbar = "rbxassetid://18772615246",
@@ -38,6 +39,9 @@ IconEngine.Lucide = {
 	['zap'] = "rbxassetid://89858717966393",
 	['close'] = "rbxassetid://10747384394",
 	['xmark'] = "rbxassetid://10747384394",
+	['logo'] = "rbxassetid://136264753381080",
+	['hyper'] = "rbxassetid://136264753381080",
+	['brand-logo'] = "rbxassetid://136264753381080",
 	['check-mark'] = "rbxassetid://10709790644",
 	['search'] = "rbxassetid://10734943674",
 
@@ -1076,6 +1080,10 @@ function IconEngine:GetIcon(name, font_aws)
 	-- Pure number string like "112209635962758"
 	if tonumber(strName) then
 		return "rbxassetid://" .. strName
+	end
+
+	if IconEngine.Assets and (IconEngine.Assets[name] or IconEngine.Assets[string.lower(strName)]) then
+		return IconEngine.Assets[name] or IconEngine.Assets[string.lower(strName)]
 	end
 
 	if font_aws then

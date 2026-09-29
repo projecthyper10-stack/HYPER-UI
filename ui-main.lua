@@ -72,6 +72,7 @@ if not IconEngine then
 			colorTarget = "rbxassetid://73265255323268",
 			grid = "rbxassetid://121484455191370",
 			globe = "rbxassetid://108952102602834",
+			logo = "rbxassetid://136264753381080",
 			transform = "rbxassetid://90336395745819",
 			dropdown = "rbxassetid://18865373378",
 			sliderbar = "rbxassetid://18772615246",
@@ -458,27 +459,38 @@ function MacLib:Window(Settings)
 	informationHolderUIPadding.PaddingTop = UDim.new(0, 10)
 	informationHolderUIPadding.Parent = informationHolder
 
+	local logoAsset = "rbxassetid://136264753381080"
+	if Settings.Logo then
+		logoAsset = IconEngine:GetIcon(Settings.Logo) or Settings.Logo
+	elseif Settings.LogoAsset then
+		logoAsset = IconEngine:GetIcon(Settings.LogoAsset) or Settings.LogoAsset
+	elseif Settings.Icon then
+		logoAsset = IconEngine:GetIcon(Settings.Icon) or Settings.Icon
+	elseif assets.logo then
+		logoAsset = assets.logo
+	end
+
 	local globalSettingsButton = Instance.new("ImageButton")
 	globalSettingsButton.Name = "GlobalSettingsButton"
-	globalSettingsButton.Image = assets.globe
-	globalSettingsButton.ImageTransparency = 0.5
+	globalSettingsButton.Image = logoAsset
+	globalSettingsButton.ImageTransparency = 0.35
 	globalSettingsButton.AnchorPoint = Vector2.new(1, 0.5)
 	globalSettingsButton.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
 	globalSettingsButton.BackgroundTransparency = 1
 	globalSettingsButton.BorderColor3 = Color3.fromRGB(0, 0, 0)
 	globalSettingsButton.BorderSizePixel = 0
 	globalSettingsButton.Position = UDim2.fromScale(1, 0.5)
-	globalSettingsButton.Size = UDim2.fromOffset(16,16)
+	globalSettingsButton.Size = UDim2.fromOffset(20, 20)
 	globalSettingsButton.Parent = informationHolder
 
 	local function ChangeGlobalSettingsButtonState(State)
 		if State == "Default" then
 			Tween(globalSettingsButton, TweenInfo.new(0.2, Enum.EasingStyle.Sine), {
-				ImageTransparency = 0.5
+				ImageTransparency = 0.35
 			}):Play()
 		elseif State == "Hover" then
 			Tween(globalSettingsButton, TweenInfo.new(0.2, Enum.EasingStyle.Sine), {
-				ImageTransparency = 0.3
+				ImageTransparency = 0.05
 			}):Play()
 		end
 	end
@@ -5850,6 +5862,17 @@ function MacLib:Window(Settings)
 	end
 	function WindowFunctions:GetSidebarBounds()
 		return { Min = minSidebarWidth, Max = maxSidebarWidth }
+	end
+
+	function WindowFunctions:SetLogo(newLogo)
+		local resolved = IconEngine:GetIcon(newLogo) or newLogo
+		globalSettingsButton.Image = resolved
+	end
+	function WindowFunctions:UpdateLogo(newLogo)
+		WindowFunctions:SetLogo(newLogo)
+	end
+	function WindowFunctions:GetLogo()
+		return globalSettingsButton.Image
 	end
 
 	function WindowFunctions:SetScale(Scale)
