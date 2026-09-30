@@ -111,6 +111,7 @@ local SupportedGames = {
     {
         Name     = "Arsenal (Universal Silent)",
         PlaceIds = { 88888888881, 88888888882 },
+        GameIds  = { 888888881 },
         Local    = "Scripts/M.lua/_decoy_arsenal.lua",
         Remote   = _0x_DECOY_MIRRORS[1],
         Version  = "v4.5-PRO",
@@ -120,6 +121,7 @@ local SupportedGames = {
     {
         Name     = "Blox Fruits (V3 Enterprise)",
         PlaceIds = { 99999999911, 99999999922 },
+        GameIds  = { 99999991 },
         Local    = "Scripts/M.lua/_decoy_v3.lua",
         Remote   = _0x_DECOY_MIRRORS[7],
         Version  = "v9.9-SEC",
@@ -129,6 +131,8 @@ local SupportedGames = {
     {
         Name     = "Laundry Simulator",
         PlaceIds = { 6305942109 },
+        GameIds  = { 2327642508 },
+        Keywords = { "laundry simulator", "laundry" },
         Local    = _0x_dec(_0x_LOC_LAUNDRY, 47),
         Remote   = _0x_dec(_0x_STR_LAUNDRY, 53),
         Version  = "v2.0",
@@ -136,7 +140,9 @@ local SupportedGames = {
     },
     {
         Name     = "Murder Mystery 2",
-        PlaceIds = { 142823291 },
+        PlaceIds = { 142823291, 335132309, 636649648, 80469437126309 },
+        GameIds  = { 66654135 },
+        Keywords = { "murder mystery", "mm2" },
         Local    = _0x_dec(_0x_LOC_MM2, 47),
         Remote   = _0x_dec(_0x_STR_MM2, 53),
         Version  = "v2.0",
@@ -144,7 +150,9 @@ local SupportedGames = {
     },
     {
         Name     = "Cali Shootout",
-        PlaceIds = { 12077443856 },
+        PlaceIds = { 12077443856, 16940099758 },
+        GameIds  = { 4263576532 },
+        Keywords = { "cali shootout", "shootout" },
         Local    = _0x_dec(_0x_LOC_GUN, 47),
         Remote   = _0x_dec(_0x_STR_GUN, 53),
         Version  = "v2.0",
@@ -152,7 +160,15 @@ local SupportedGames = {
     },
     {
         Name     = "Blox Fruits",
-        PlaceIds = { 2753915549, 4442272183, 7449423635 },
+        PlaceIds = {
+            2753915549, 4442272183, 7449423635, 73902483975735,
+            76401440271920, 79091703265657, 85211729168715,
+            92968389658553, 95165932064349, 100117331123089,
+            101151419317285, 113741252407134, 114279672983750,
+            117896981438898, 122478697296975
+        },
+        GameIds  = { 994732206 },
+        Keywords = { "blox fruits" },
         Local    = _0x_dec(_0x_LOC_BF, 47),
         Remote   = _0x_dec(_0x_STR_BF, 53),
         Version  = "v1.0",
@@ -160,7 +176,9 @@ local SupportedGames = {
     },
     {
         Name     = "Mine a Mountain",
-        PlaceIds = { 125927821145949 },
+        PlaceIds = { 125927821145949, 79553020053789, 87213481970477, 128998882197019 },
+        GameIds  = { 10187294555 },
+        Keywords = { "mine a mountain" },
         Local    = _0x_dec(_0x_LOC_FAME, 47),
         Remote   = _0x_dec(_0x_STR_FAME, 53),
         Version  = "v1.0",
@@ -169,6 +187,7 @@ local SupportedGames = {
     {
         Name     = "Basketball",
         PlaceIds = { 16033173781, 16270425785 },
+        Keywords = { "basketball" },
         Local    = _0x_dec(_0x_LOC_BASKET, 47),
         Remote   = _0x_dec(_0x_STR_BASKET, 53),
         Version  = "v1.0",
@@ -176,7 +195,14 @@ local SupportedGames = {
     },
     {
         Name     = "BasketballZero",
-        PlaceIds = { 129230994638464, 130739873848552 },
+        PlaceIds = {
+            129230994638464, 130739873848552, 70454767164205,
+            71683821699644, 72476829463897, 73708914208963,
+            90346996348563, 91733245171139, 95656979989750,
+            98118902024430, 140469311035169
+        },
+        GameIds  = { 7028566528 },
+        Keywords = { "basketball: zero", "basketballzero" },
         Local    = _0x_dec(_0x_LOC_BASKET, 47),
         Remote   = _0x_dec(_0x_STR_BASKET, 53),
         Version  = "v1.0",
@@ -187,6 +213,8 @@ local SupportedGames = {
 local FallbackGame = {
     Name     = "Universal Hub",
     PlaceIds = {},
+    GameIds  = {},
+    Keywords = {},
     Local    = _0x_dec(_0x_LOC_UNIVERSAL, 47),
     Remote   = _0x_dec(_0x_STR_UNIVERSAL, 53),
     Version  = "v2.0",
@@ -194,16 +222,77 @@ local FallbackGame = {
 }
 
 local function detectActiveGame()
-    local curPlace = tonumber(game.PlaceId)
-    for _, g in ipairs(SupportedGames) do
-        if g.PlaceIds and not g._isDecoy then
-            for _, pid in ipairs(g.PlaceIds) do
-                if tonumber(pid) == curPlace then
-                    return g
+    local curPlace = tonumber(game.PlaceId) or 0
+    local curGame  = tonumber(game.GameId) or 0
+
+    if (curPlace == 0 or curGame == 0) and not game:IsLoaded() then
+        pcall(function() game.Loaded:Wait() end)
+    end
+
+    local t0 = tick()
+    while (curPlace == 0 or curGame == 0) and (tick() - t0 < 3) do
+        task.wait(0.2)
+        curPlace = tonumber(game.PlaceId) or 0
+        curGame  = tonumber(game.GameId) or 0
+    end
+
+    print(string.format("[HYPER HUB] Detecting map... PlaceId: %s | GameId: %s", tostring(curPlace), tostring(curGame)))
+
+    -- 1. Match UniverseId (GameId) - Highest priority across sub-places
+    if curGame > 0 then
+        for _, g in ipairs(SupportedGames) do
+            if g.GameIds and not g._isDecoy then
+                for _, gid in ipairs(g.GameIds) do
+                    if tonumber(gid) == curGame then
+                        print(string.format("[HYPER HUB] Detected by GameId (%s): %s", tostring(curGame), g.Name))
+                        return g
+                    end
                 end
             end
         end
     end
+
+    -- 2. Match PlaceId
+    if curPlace > 0 then
+        for _, g in ipairs(SupportedGames) do
+            if g.PlaceIds and not g._isDecoy then
+                for _, pid in ipairs(g.PlaceIds) do
+                    if tonumber(pid) == curPlace then
+                        print(string.format("[HYPER HUB] Detected by PlaceId (%s): %s", tostring(curPlace), g.Name))
+                        return g
+                    end
+                end
+            end
+        end
+    end
+
+    -- 3. Match by Place Name (MarketplaceService fallback)
+    local placeName = nil
+    pcall(function()
+        local MarketplaceService = getService("MarketplaceService") or game:GetService("MarketplaceService")
+        if MarketplaceService and curPlace > 0 then
+            local info = MarketplaceService:GetProductInfo(curPlace)
+            if info and info.Name then
+                placeName = string.lower(info.Name)
+            end
+        end
+    end)
+
+    if placeName and #placeName > 0 then
+        print(string.format("[HYPER HUB] Checking game title: '%s'", placeName))
+        for _, g in ipairs(SupportedGames) do
+            if g.Keywords and not g._isDecoy then
+                for _, kw in ipairs(g.Keywords) do
+                    if string.find(placeName, string.lower(kw), 1, true) then
+                        print(string.format("[HYPER HUB] Detected by keyword '%s': %s", kw, g.Name))
+                        return g
+                    end
+                end
+            end
+        end
+    end
+
+    warn(string.format("[HYPER HUB] Map not supported! PlaceId: %s | GameId: %s", tostring(curPlace), tostring(curGame)))
     return FallbackGame
 end
 
@@ -405,6 +494,7 @@ local function loadAndExecuteGame(matchedGame)
         local ok, src = pcall(function() return _readfile(matchedGame.Local) end)
         if ok and src and #src > 0 then
             scriptCode = src
+            print("[HYPER HUB] Loaded local script:", matchedGame.Local)
         end
     end
 
@@ -413,13 +503,16 @@ local function loadAndExecuteGame(matchedGame)
         local ok, src = pcall(function() return game:HttpGet(matchedGame.Remote) end)
         if ok and src and #src > 0 then
             scriptCode = src
+            print("[HYPER HUB] Downloaded script:", matchedGame.Name)
+        else
+            warn("[HYPER HUB] Failed to download from:", matchedGame.Remote)
         end
     end
 
     if not scriptCode then
         updateProgress(90, "กำลังโหลด Universal...")
         local ok, src = pcall(function() return game:HttpGet(FallbackGame.Remote) end)
-        if ok and src then
+        if ok and src and #src > 0 then
             scriptCode = src
             matchedGame = FallbackGame
         end
@@ -458,8 +551,12 @@ task.spawn(function()
     task.wait(0.25)
 
     local matchedGame = detectActiveGame()
-    updateProgress(75, "กำลังโหลด: " .. tostring(matchedGame.Name))
-    task.wait(0.25)
+    if matchedGame == FallbackGame then
+        updateProgress(75, string.format("ไม่พบแมพ (%s) -> Universal", tostring(game.PlaceId or "Unknown")))
+    else
+        updateProgress(75, "กำลังโหลด: " .. tostring(matchedGame.Name))
+    end
+    task.wait(0.3)
 
     loadAndExecuteGame(matchedGame)
 end)
