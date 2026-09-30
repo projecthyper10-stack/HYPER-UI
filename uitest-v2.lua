@@ -348,7 +348,7 @@ sections.SettingsMain:Button({
 --  Config & Init
 -- ==============================================================================
 
-MacLib:SetFolder("Maclib")
+MacLib:SetFolder("x2hyper")
 tabs.Farming:InsertConfigSection("Left")
 
 Window.onUnloaded(function() print("[Slayers2] Unloaded!") end)
