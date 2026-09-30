@@ -1,6 +1,6 @@
 local MacLib = { 
 	Options = {}, 
-	Folder = "Maclib", 
+	Folder = "x2hyper", 
 	Version = "v2.0",
 	GetService = function(service)
 		return cloneref and cloneref(game:GetService(service)) or game:GetService(service)
