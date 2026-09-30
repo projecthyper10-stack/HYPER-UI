@@ -714,16 +714,7 @@ function loadAndExecuteGame(matchedGame)
         end)
     end
 
-    print("==================================================")
-    print("🚀 HYPER HUB v2 — Universal Modern Game Loader")
-    print("📦 Loader Version : " .. LOADER_VERSION)
-    print("💻 UI Engine      : MacLib v2.0 (ui-main.lua)")
-    print("🎮 Detected Game  : " .. matchedGame.Name .. " (" .. (matchedGame.Version or "v2.0") .. ")")
-    print("📍 Active PlaceId : " .. tostring(game.PlaceId) .. " (GameId: " .. tostring(game.GameId) .. ")")
-    print("👤 Player Name    : " .. (LocalPlayer and LocalPlayer.Name or "Unknown") .. " (UID: " .. (LocalPlayer and LocalPlayer.UserId or 0) .. ")")
-    print("🛡️ Executor Name   : " .. getExecutorName())
-    print("⚡ Status         : Successfully Launched!")
-    print("==================================================")
+
 
     updateProgress(100, "Ready! Starting " .. matchedGame.Name .. "...")
     task.wait(0.6)
