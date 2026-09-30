@@ -19,6 +19,17 @@ local Players = MacLib.GetService("Players")
 --// Variables
 local isStudio = RunService:IsStudio()
 local LocalPlayer = Players.LocalPlayer
+local function getLocalPlayer()
+	if LocalPlayer then return LocalPlayer end
+	LocalPlayer = Players.LocalPlayer
+	if not LocalPlayer then
+		pcall(function()
+			LocalPlayer = Players:GetPropertyChangedSignal("LocalPlayer"):Wait()
+		end)
+		LocalPlayer = LocalPlayer or Players.LocalPlayer
+	end
+	return LocalPlayer
+end
 
 local windowState
 local acrylicBlur
@@ -129,8 +140,8 @@ end
 local function GetGui()
 	CleanOldGuis()
 
-	local parent = RunService:IsStudio() 
-		and LocalPlayer:FindFirstChild("PlayerGui")
+	local lp = getLocalPlayer()
+	local parent = (RunService:IsStudio() and lp and lp:FindFirstChild("PlayerGui"))
 		or (gethui and gethui())
 		or (cloneref and cloneref(MacLib.GetService("CoreGui")) or MacLib.GetService("CoreGui"))
 
@@ -651,10 +662,16 @@ function MacLib:Window(Settings)
 	informationGroupUIListLayout.VerticalAlignment = Enum.VerticalAlignment.Center
 	informationGroupUIListLayout.Parent = informationGroup
 
-	local userId = LocalPlayer.UserId
+	local lp = getLocalPlayer()
+	local userId = (lp and lp.UserId) or 0
 	local thumbType = Enum.ThumbnailType.AvatarBust
 	local thumbSize = Enum.ThumbnailSize.Size48x48
-	local headshotImage, isReady = Players:GetUserThumbnailAsync(userId, thumbType, thumbSize)
+	local headshotImage, isReady = nil, false
+	if userId and userId > 0 then
+		pcall(function()
+			headshotImage, isReady = Players:GetUserThumbnailAsync(userId, thumbType, thumbSize)
+		end)
+	end
 
 	local headshot = Instance.new("ImageLabel")
 	headshot.Name = "Headshot"
@@ -688,6 +705,9 @@ function MacLib:Window(Settings)
 	userAndDisplayFrame.LayoutOrder = 1
 	userAndDisplayFrame.Size = UDim2.new(1, -38, 0, 32)
 
+	local playerDisplayName = (lp and lp.DisplayName) or "Player"
+	local playerUserName = (lp and lp.Name) or "User"
+
 	local displayName = Instance.new("TextLabel")
 	displayName.Name = "DisplayName"
 	displayName.FontFace = Font.new(
@@ -695,7 +715,7 @@ function MacLib:Window(Settings)
 		Enum.FontWeight.SemiBold,
 		Enum.FontStyle.Normal
 	)
-	displayName.Text = LocalPlayer.DisplayName
+	displayName.Text = playerDisplayName
 	displayName.TextColor3 = Color3.fromRGB(255, 255, 255)
 	displayName.TextSize = 13
 	displayName.TextTransparency = 0.1
@@ -729,7 +749,7 @@ function MacLib:Window(Settings)
 		Enum.FontWeight.SemiBold,
 		Enum.FontStyle.Normal
 	)
-	username.Text = "@" .. LocalPlayer.Name
+	username.Text = "@" .. playerUserName
 	username.TextColor3 = Color3.fromRGB(255, 255, 255)
 	username.TextSize = 12
 	username.TextTransparency = 0.7
@@ -5034,7 +5054,8 @@ function MacLib:Window(Settings)
 						Alpha = alpha.InputBox
 					}
 
-					local Mouse = LocalPlayer:GetMouse()
+					local lp = getLocalPlayer()
+					local Mouse = lp and lp:GetMouse()
 
 					local WheelDown, SlideDown = false, false
 					local hue, saturation, value = 0, 0, 1
@@ -6516,14 +6537,17 @@ function MacLib:Window(Settings)
 	end
 
 	local function _SetUserInfoState(State)
+		local currentLp = getLocalPlayer()
+		local uName = (currentLp and currentLp.Name) or "User"
+		local dName = (currentLp and currentLp.DisplayName) or "Player"
 		if State then
 			headshot.Image = (isReady and headshotImage) or "rbxassetid://0"
-			username.Text = "@" .. LocalPlayer.Name
-			displayName.Text = LocalPlayer.DisplayName
+			username.Text = "@" .. uName
+			displayName.Text = dName
 		else
 			headshot.Image = assets.userInfoBlurred
-			local nameLength = #LocalPlayer.Name
-			local displayNameLength = #LocalPlayer.DisplayName
+			local nameLength = #uName
+			local displayNameLength = #dName
 			username.Text = "@" .. string.rep(".", nameLength)
 			displayName.Text = string.rep(".", displayNameLength)
 		end
