@@ -495,7 +495,7 @@ local function loadAndExecuteGame(matchedGame)
 
     if not scriptCode and matchedGame.Remote then
         updateProgress(85, "ดาวน์โหลด: " .. matchedGame.Name)
-        local ok, src = pcall(function() return game:HttpGet(matchedGame.Remote) end)
+        local ok, src = pcall(function() return game:HttpGet(matchedGame.Remote .. "?t=" .. tostring(os.time())) end)
         if ok and src and #src > 0 then
             scriptCode = src
             print("[HYPER HUB] Downloaded script:", matchedGame.Name)
@@ -506,7 +506,7 @@ local function loadAndExecuteGame(matchedGame)
 
     if not scriptCode then
         updateProgress(90, "กำลังโหลด Universal...")
-        local ok, src = pcall(function() return game:HttpGet(FallbackGame.Remote) end)
+        local ok, src = pcall(function() return game:HttpGet(FallbackGame.Remote .. "?t=" .. tostring(os.time())) end)
         if ok and src and #src > 0 then
             scriptCode = src
             matchedGame = FallbackGame
