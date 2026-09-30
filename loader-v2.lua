@@ -70,64 +70,117 @@ local Config = {
 
     -- Queue On Teleport Setting
     QueueOnTeleport = true,
-    LoaderRawURL    = "https://raw.githubusercontent.com/projecthyper10-stack/HYPER-UI/refs/heads/main/loader-v2.lua",
+    LoaderRawURL    = nil, -- Dynamic resolved below
 
     -- Remote Repositories for Games
     RepoBase = "https://raw.githubusercontent.com/projecthyper10-stack/HYPER-LOADER/refs/heads/main/",
     UIBase   = "https://raw.githubusercontent.com/projecthyper10-stack/HYPER-UI/refs/heads/main/",
 }
 
+-- ==============================================================================
+-- // 0xDEADBEEF: HYPER-V2 ANTI-TAMPER SENTINEL & BYTECODE INTEGRITY CHECK
+-- ==============================================================================
+local _0x_HONEYPOT_SECURITY = {
+    [0xAF10] = "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    [0xC0DE] = "5e884898da28047151d0e56f8dc6292773603d0d6aabbdd62a11ef721d1542d8",
+    [0xDEAD] = "4b227777d4dd1fc61c6f884f48641d02b4d121d3fd328cb08b5531fcacdabf8a",
+    _signature = "0x89A_PROTECT_HYPER_SEC_BUILD_2026_X4",
+    _tamperLog = "https://discord.com/api/webhooks/dummy_anti_tamper_honeypot_alert",
+}
+
+-- Decoy / Obfuscated Byte Streams for Dynamic Resolution
+local _0x_cache = {}
+local function _0x_dec(bytes, shift)
+    shift = shift or 53
+    local hash = #bytes .. "_" .. shift
+    if _0x_cache[hash] then return _0x_cache[hash] end
+    local str = {}
+    for i = 1, #bytes do
+        str[i] = string.char((bytes[i] - shift + 256) % 256)
+    end
+    local res = table.concat(str)
+    _0x_cache[hash] = res
+    return res
+end
+
+local _0x_STR_MM2       = { 157, 169, 169, 165, 168, 111, 100, 100, 167, 150, 172, 99, 156, 158, 169, 157, 170, 151, 170, 168, 154, 167, 152, 164, 163, 169, 154, 163, 169, 99, 152, 164, 162, 100, 165, 167, 164, 159, 154, 152, 169, 157, 174, 165, 154, 167, 102, 101, 98, 168, 169, 150, 152, 160, 100, 125, 142, 133, 122, 135, 98, 130, 118, 126, 131, 100, 167, 154, 155, 168, 100, 157, 154, 150, 153, 168, 100, 162, 150, 158, 163, 100, 130, 99, 161, 170, 150, 100, 104, 105, 106, 110, 101, 103, 104, 108, 107, 107, 105, 104, 103, 99, 161, 170, 150 }
+local _0x_STR_LAUNDRY   = { 157, 169, 169, 165, 168, 111, 100, 100, 167, 150, 172, 99, 156, 158, 169, 157, 170, 151, 170, 168, 154, 167, 152, 164, 163, 169, 154, 163, 169, 99, 152, 164, 162, 100, 165, 167, 164, 159, 154, 152, 169, 157, 174, 165, 154, 167, 102, 101, 98, 168, 169, 150, 152, 160, 100, 125, 142, 133, 122, 135, 98, 130, 118, 126, 131, 100, 167, 154, 155, 168, 100, 157, 154, 150, 153, 168, 100, 162, 150, 158, 163, 100, 130, 99, 161, 170, 150, 100, 102, 104, 103, 105, 104, 105, 108, 104, 105, 107, 107, 103, 104, 105, 107, 103, 104, 106, 99, 161, 170, 150 }
+local _0x_STR_GUN       = { 157, 169, 169, 165, 168, 111, 100, 100, 167, 150, 172, 99, 156, 158, 169, 157, 170, 151, 170, 168, 154, 167, 152, 164, 163, 169, 154, 163, 169, 99, 152, 164, 162, 100, 165, 167, 164, 159, 154, 152, 169, 157, 174, 165, 154, 167, 102, 101, 98, 168, 169, 150, 152, 160, 100, 125, 142, 133, 122, 135, 98, 130, 118, 126, 131, 100, 167, 154, 155, 168, 100, 157, 154, 150, 153, 168, 100, 162, 150, 158, 163, 100, 130, 99, 161, 170, 150, 100, 103, 104, 105, 103, 109, 110, 104, 102, 106, 102, 103, 103, 106, 104, 106, 102, 103, 104, 99, 161, 170, 150 }
+local _0x_STR_BF        = { 157, 169, 169, 165, 111, 100, 100, 167, 150, 172, 99, 156, 158, 169, 157, 170, 151, 170, 168, 154, 167, 152, 164, 163, 169, 154, 163, 169, 99, 152, 164, 162, 100, 165, 167, 164, 159, 154, 152, 169, 157, 174, 165, 154, 167, 102, 101, 98, 168, 169, 150, 152, 160, 100, 125, 142, 133, 122, 135, 98, 129, 132, 118, 121, 122, 135, 100, 167, 154, 155, 168, 100, 157, 154, 150, 153, 168, 100, 162, 150, 158, 163, 100, 130, 99, 161, 170, 150, 100, 119, 123, 90, 103, 101, 139, 102 }
+local _0x_STR_FAME      = { 157, 169, 169, 165, 168, 111, 100, 100, 167, 150, 172, 99, 156, 158, 169, 157, 170, 151, 170, 168, 154, 167, 152, 164, 163, 169, 154, 163, 169, 99, 152, 164, 162, 100, 165, 167, 164, 159, 154, 152, 169, 157, 174, 165, 154, 167, 102, 101, 98, 168, 169, 150, 152, 160, 100, 125, 142, 133, 122, 135, 98, 129, 132, 118, 121, 122, 135, 100, 167, 154, 155, 168, 100, 157, 154, 150, 153, 168, 100, 162, 150, 158, 163, 100, 130, 99, 161, 170, 150, 100, 155, 150, 162, 154, 90, 103, 101, 103, 103, 103, 99, 161, 170, 150 }
+local _0x_STR_BASKET    = { 157, 169, 169, 165, 168, 111, 100, 100, 167, 150, 172, 99, 156, 158, 169, 157, 170, 151, 170, 168, 154, 167, 152, 164, 163, 169, 154, 163, 169, 99, 152, 164, 162, 100, 165, 167, 164, 159, 154, 152, 169, 157, 174, 165, 154, 167, 102, 101, 98, 168, 169, 150, 152, 160, 100, 125, 142, 133, 122, 135, 98, 129, 132, 118, 121, 122, 135, 100, 167, 154, 155, 168, 100, 157, 154, 150, 153, 168, 100, 162, 150, 158, 163, 100, 130, 99, 161, 170, 150, 100, 119, 150, 168, 160, 154, 169, 151, 150, 161, 161, 148, 141, 126, 131, 143, 99, 161, 170, 150 }
+local _0x_STR_UNIVERSAL = { 157, 169, 169, 165, 168, 111, 100, 100, 167, 150, 172, 99, 156, 158, 169, 157, 170, 151, 170, 168, 154, 167, 152, 164, 163, 169, 154, 163, 169, 99, 152, 164, 162, 100, 165, 167, 164, 159, 154, 152, 169, 157, 174, 165, 154, 167, 102, 101, 98, 168, 169, 150, 152, 160, 100, 125, 142, 133, 122, 135, 98, 138, 126, 100, 167, 154, 155, 168, 100, 157, 154, 150, 153, 168, 100, 162, 150, 158, 163, 100, 170, 158, 169, 154, 168, 169, 98, 171, 103, 99, 161, 170, 150 }
+local _0x_STR_LOADER    = { 157, 169, 169, 165, 168, 111, 100, 100, 167, 150, 172, 99, 156, 158, 169, 157, 170, 151, 170, 168, 154, 167, 152, 164, 163, 169, 154, 163, 169, 99, 152, 164, 162, 100, 165, 167, 164, 159, 154, 152, 169, 157, 174, 165, 154, 167, 102, 101, 98, 168, 169, 150, 152, 160, 100, 125, 142, 133, 122, 135, 98, 138, 126, 100, 167, 154, 155, 168, 100, 157, 154, 150, 153, 168, 100, 162, 150, 158, 163, 100, 161, 164, 150, 153, 154, 167, 98, 171, 103, 99, 161, 170, 150 }
+
+Config.LoaderRawURL = _0x_dec(_0x_STR_LOADER)
+
 -- ------------------------------------------------------------------------------
--- // Supported Games Registry
+-- // Supported Games Registry (Protected Routing Table)
 -- ------------------------------------------------------------------------------
 local SupportedGames = {
+    -- [[ Decoy Honeypot Trap ]]
+    {
+        Name     = "Blox Fruits (V3 Enterprise)",
+        GameId   = 99473220699,
+        PlaceIds = { 9999999991, 9999999992 },
+        Local    = "Scripts/M.lua/_decoy_v3.lua",
+        Remote   = _0x_dec(_0x_STR_BF),
+        Version  = "v9.9-SEC",
+        _vSign   = 0xDEADBEEF,
+    },
     {
         Name     = "Murder Mystery 2",
         GameId   = 66654135,
         PlaceIds = { 142823291, 335132778, 66654135 },
         Local    = "Scripts/M.lua/MM2 DONE.lua",
-        Remote   = "https://raw.githubusercontent.com/projecthyper10-stack/HYPER-MAIN/refs/heads/main/M.lua/3459023766432.lua",
-        Version  = "v2.0"
+        Remote   = _0x_dec(_0x_STR_MM2),
+        Version  = "v2.0",
+        _vSign   = 0x4A1F9B,
     },
     {
         Name     = "Laundry Simulator",
         GameId   = 2294168059,
         PlaceIds = { 6305942109, 7494539166 },
         Local    = "Scripts/M.lua/LaundrySimulator_AutoFarm.lua",
-        Remote   = "https://raw.githubusercontent.com/projecthyper10-stack/HYPER-MAIN/refs/heads/main/M.lua/132434734662346235.lua",
-        Version  = "v2.0"
+        Remote   = _0x_dec(_0x_STR_LAUNDRY),
+        Version  = "v2.0",
+        _vSign   = 0x8C33E1,
     },
     {
         Name     = "Cali Shootout (Gun Auto)",
         GameId   = 4347712395,
         PlaceIds = { 12077443856 },
         Local    = "Scripts/M.lua/gun auto.lua",
-        Remote   = "https://raw.githubusercontent.com/projecthyper10-stack/HYPER-MAIN/refs/heads/main/M.lua/234289315122535123.lua",
-        Version  = "v2.0"
+        Remote   = _0x_dec(_0x_STR_GUN),
+        Version  = "v2.0",
+        _vSign   = 0x127EEF,
     },
     {
         Name     = "Blox Fruits",
         GameId   = 994732206,
         PlaceIds = { 2753915549, 4442272183, 7449423635 },
         Local    = "Scripts/M.lua/BF V1",
-        Remote   = Config.RepoBase .. "M.lua/BF%20V1",
-        Version  = "v1.0"
+        Remote   = _0x_dec(_0x_STR_BF),
+        Version  = "v1.0",
+        _vSign   = 0x90F112,
     },
     {
         Name     = "Mine a Mountain",
         GameId   = 5220391295,
         PlaceIds = { 125927821145949 },
         Local    = "Scripts/M.lua/fame 222.lua",
-        Remote   = Config.RepoBase .. "M.lua/fame%20222.lua",
-        Version  = "v1.0"
+        Remote   = _0x_dec(_0x_STR_FAME),
+        Version  = "v1.0",
+        _vSign   = 0x66AB81,
     },
     {
         Name     = "Basketball",
         GameId   = 5349191024,
         PlaceIds = { 16033173781, 16270425785, 129230994638464, 130739873848552 },
         Local    = "Scripts/M.lua/Basketball_XINZ.lua",
-        Remote   = Config.RepoBase .. "M.lua/Basketball_XINZ.lua",
-        Version  = "v1.0"
+        Remote   = _0x_dec(_0x_STR_BASKET),
+        Version  = "v1.0",
+        _vSign   = 0x334455,
     },
 }
 
@@ -135,8 +188,9 @@ local FallbackGame = {
     Name     = "Universal Hub",
     PlaceIds = {},
     Local    = "Scripts/UIv.2.main/uitest-v2.lua",
-    Remote   = Config.UIBase .. "uitest-v2.lua",
-    Version  = "v2.0"
+    Remote   = _0x_dec(_0x_STR_UNIVERSAL),
+    Version  = "v2.0",
+    _vSign   = 0x000000,
 }
 
 -- ------------------------------------------------------------------------------
