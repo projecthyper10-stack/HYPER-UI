@@ -108,65 +108,8 @@ local _0x_STR_LOADER    = { 157, 169, 169, 165, 168, 111, 100, 100, 167, 150, 17
 Config.LoaderRawURL = _0x_dec(_0x_STR_LOADER)
 
 local SupportedGames = {
-
-    {
-        Name     = "Arsenal (Universal Silent)",
-        GameId   = 286090429,
-        PlaceIds = { 286090429, 8888888888 },
-        Local    = "Scripts/M.lua/_decoy_arsenal.lua",
-        Remote   = _0x_DECOY_MIRRORS[1],
-        Version  = "v4.5-PRO",
-        _vSign   = 0xCAFEBABE,
-    },
-    {
-        Name     = "Blox Fruits (V3 Enterprise)",
-        GameId   = 99473220699,
-        PlaceIds = { 9999999991, 9999999992 },
-        Local    = "Scripts/M.lua/_decoy_v3.lua",
-        Remote   = _0x_DECOY_MIRRORS[7],
-        Version  = "v9.9-SEC",
-        _vSign   = 0xDEADBEEF,
-    },
-
-    {
-        Name     = "Blox Fruits (V3 Enterprise)",
-        GameId   = 99473220699,
-        PlaceIds = { 9999999991, 9999999992 },
-        Local    = "Scripts/M.lua/_decoy_v3.lua",
-        Remote   = _0x_dec(_0x_STR_BF),
-        Version  = "v9.9-SEC",
-        _vSign   = 0xDEADBEEF,
-    },
-    {
-        Name     = "Murder Mystery 2",
-        GameId   = 66654135,
-        PlaceIds = { 142823291, 335132778, 66654135 },
-        Local    = "Scripts/M.lua/MM2 DONE.lua",
-        Remote   = _0x_dec(_0x_STR_MM2),
-        Version  = "v2.0",
-        _vSign   = 0x4A1F9B,
-    },
-    {
-        Name     = "Laundry Simulator",
-        GameId   = 2294168059,
-        PlaceIds = { 6305942109, 7494539166 },
-        Local    = "Scripts/M.lua/LaundrySimulator_AutoFarm.lua",
-        Remote   = _0x_dec(_0x_STR_LAUNDRY),
-        Version  = "v2.0",
-        _vSign   = 0x8C33E1,
-    },
-    {
-        Name     = "Cali Shootout (Gun Auto)",
-        GameId   = 4347712395,
-        PlaceIds = { 12077443856 },
-        Local    = "Scripts/M.lua/gun auto.lua",
-        Remote   = _0x_dec(_0x_STR_GUN),
-        Version  = "v2.0",
-        _vSign   = 0x127EEF,
-    },
     {
         Name     = "Blox Fruits",
-        GameId   = 994732206,
         PlaceIds = { 2753915549, 4442272183, 7449423635 },
         Local    = "Scripts/M.lua/BF V1",
         Remote   = _0x_dec(_0x_STR_BF),
@@ -174,8 +117,15 @@ local SupportedGames = {
         _vSign   = 0x90F112,
     },
     {
+        Name     = "Murder Mystery 2",
+        PlaceIds = { 142823291 },
+        Local    = "Scripts/M.lua/MM2 DONE.lua",
+        Remote   = _0x_dec(_0x_STR_MM2),
+        Version  = "v2.0",
+        _vSign   = 0x4A1F9B,
+    },
+    {
         Name     = "Mine a Mountain",
-        GameId   = 5220391295,
         PlaceIds = { 125927821145949 },
         Local    = "Scripts/M.lua/fame 222.lua",
         Remote   = _0x_dec(_0x_STR_FAME),
@@ -183,14 +133,55 @@ local SupportedGames = {
         _vSign   = 0x66AB81,
     },
     {
+        Name     = "Laundry Simulator",
+        PlaceIds = { 6305942109 },
+        Local    = "Scripts/M.lua/LaundrySimulator_AutoFarm.lua",
+        Remote   = _0x_dec(_0x_STR_LAUNDRY),
+        Version  = "v2.0",
+        _vSign   = 0x8C33E1,
+    },
+    {
+        Name     = "Cali Shootout",
+        PlaceIds = { 12077443856 },
+        Local    = "Scripts/M.lua/gun auto.lua",
+        Remote   = _0x_dec(_0x_STR_GUN),
+        Version  = "v2.0",
+        _vSign   = 0x127EEF,
+    },
+    {
         Name     = "Basketball",
-        GameId   = 5349191024,
-        PlaceIds = { 16033173781, 16270425785, 129230994638464, 130739873848552 },
-        Local    = "Scripts/M.lua/Basketball_XINZ.lua",
+        PlaceIds = { 16033173781, 16270425785 },
+        Local    = "Scripts/Basketball_HYPER.lua",
         Remote   = _0x_dec(_0x_STR_BASKET),
         Version  = "v1.0",
         _vSign   = 0x334455,
     },
+    {
+        Name     = "BasketballZero",
+        PlaceIds = { 129230994638464, 130739873848552 },
+        Local    = "Scripts/Basketball_HYPER.lua",
+        Remote   = _0x_dec(_0x_STR_BASKET),
+        Version  = "v1.0",
+        _vSign   = 0x556677,
+    },
+    {
+        Name     = "Arsenal (Universal Silent)",
+        PlaceIds = { 88888888881, 88888888882 },
+        Local    = "Scripts/M.lua/_decoy_arsenal.lua",
+        Remote   = _0x_DECOY_MIRRORS[1],
+        Version  = "v4.5-PRO",
+        _vSign   = 0xCAFEBABE,
+        _isDecoy = true,
+    },
+    {
+        Name     = "Blox Fruits (V3 Enterprise)",
+        PlaceIds = { 99999999911, 99999999922 },
+        Local    = "Scripts/M.lua/_decoy_v3.lua",
+        Remote   = _0x_DECOY_MIRRORS[7],
+        Version  = "v9.9-SEC",
+        _vSign   = 0xDEADBEEF,
+        _isDecoy = true,
+    }
 }
 
 local FallbackGame = {
@@ -229,16 +220,11 @@ local function copyToClipboard(text)
 end
 
 local function detectActiveGame()
-    local curPlaceId = game.PlaceId
-    local curGameId  = game.GameId
-
+    local curPlace = tonumber(game.PlaceId)
     for _, g in ipairs(SupportedGames) do
-        if g.GameId and curGameId == g.GameId then
-            return g
-        end
-        if g.PlaceIds then
+        if g.PlaceIds and not g._isDecoy then
             for _, pid in ipairs(g.PlaceIds) do
-                if curPlaceId == pid then
+                if tonumber(pid) == curPlace then
                     return g
                 end
             end
