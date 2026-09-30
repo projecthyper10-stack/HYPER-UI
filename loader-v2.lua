@@ -103,7 +103,7 @@ local Config = {
     Subtitle        = "Universal Game Loader",
     Logo            = _0x_dec(_0x_STR_LOGO, 41),
     AccentColor     = Color3.fromRGB(29, 235, 169),
-    QueueOnTeleport = true,
+    QueueOnTeleport = false,
     LoaderRawURL    = _0x_dec(_0x_STR_LOADER_RAW, 53),
 }
 
@@ -430,13 +430,6 @@ local function loadAndExecuteGame(matchedGame)
         task.wait(2)
         playExitAnimation()
         return
-    end
-
-    if Config.QueueOnTeleport and _queueonteleport then
-        pcall(function()
-            local qCode = string.format('loadstring(game:HttpGet("%s"))()', Config.LoaderRawURL)
-            _queueonteleport(qCode)
-        end)
     end
 
     updateProgress(100, "กำลังเริ่ม " .. matchedGame.Name .. "...")
