@@ -1,5 +1,9 @@
 
-local LOADER_VERSION = "v2.0"
+if not game:IsLoaded() then
+    pcall(function() game.Loaded:Wait() end)
+end
+
+local LOADER_VERSION = "v2.0" 
 local UI_VERSION     = "v2.0"
 local AUTHOR         = "K2NTA ST"
 
@@ -233,14 +237,35 @@ local function detectActiveGame()
     return FallbackGame
 end
 
+local function getScreenParent()
+    local parent = nil
+    if typeof(gethui) == "function" then
+        pcall(function() parent = gethui() end)
+    end
+    if not parent and CoreGui then
+        pcall(function()
+            local t = Instance.new("Folder")
+            t.Parent = CoreGui
+            t:Destroy()
+            parent = CoreGui
+        end)
+    end
+    if not parent and LocalPlayer then
+        pcall(function()
+            parent = LocalPlayer:WaitForChild("PlayerGui", 5) or LocalPlayer:FindFirstChild("PlayerGui")
+        end)
+    end
+    return parent or CoreGui
+end
+
 local function cleanPreviousGui()
     local targets = {}
     if typeof(gethui) == "function" then
         pcall(function() table.insert(targets, gethui()) end)
     end
-    if CoreGui then table.insert(targets, CoreGui) end
+    if CoreGui then pcall(function() table.insert(targets, CoreGui) end) end
     if LocalPlayer and LocalPlayer:FindFirstChild("PlayerGui") then
-        table.insert(targets, LocalPlayer.PlayerGui)
+        pcall(function() table.insert(targets, LocalPlayer.PlayerGui) end)
     end
 
     for _, parent in ipairs(targets) do
@@ -255,12 +280,13 @@ local function cleanPreviousGui()
 end
 cleanPreviousGui()
 
-local ScreenParent = (typeof(gethui) == "function" and gethui()) or CoreGui or (LocalPlayer and LocalPlayer:FindFirstChild("PlayerGui"))
+local ScreenParent = getScreenParent()
 local ScreenGui = Instance.new("ScreenGui")
 ScreenGui.Name = "HYPER_Loader_ScreenGui"
-ScreenGui.DisplayOrder = 99999
+ScreenGui.DisplayOrder = 999999
 ScreenGui.IgnoreGuiInset = true
 ScreenGui.ResetOnSpawn = false
+ScreenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
 ScreenGui.Parent = ScreenParent
 
 local BackgroundOverlay = Instance.new("Frame")
@@ -273,10 +299,10 @@ BackgroundOverlay.Parent = ScreenGui
 
 local Card = Instance.new("Frame")
 Card.Name = "Card"
-Card.Size = UDim2.new(0, 160, 0, 130)
+Card.Size = UDim2.new(0, 240, 0, 140)
 Card.Position = UDim2.new(0.5, 0, 0.5, 0)
 Card.AnchorPoint = Vector2.new(0.5, 0.5)
-Card.BackgroundColor3 = Color3.fromRGB(16, 18, 24)
+Card.BackgroundColor3 = Color3.fromRGB(15, 17, 24)
 Card.BackgroundTransparency = 1
 Card.BorderSizePixel = 0
 Card.ClipsDescendants = false
@@ -287,7 +313,7 @@ CardCorner.CornerRadius = UDim.new(0, 16)
 CardCorner.Parent = Card
 
 local CardStroke = Instance.new("UIStroke")
-CardStroke.Color = Color3.fromRGB(45, 52, 68)
+CardStroke.Color = Color3.fromRGB(42, 48, 64)
 CardStroke.Thickness = 1.2
 CardStroke.Transparency = 1
 CardStroke.Parent = Card
@@ -308,8 +334,8 @@ CardShadow.Parent = ScreenGui
 
 local Logo = Instance.new("ImageLabel")
 Logo.Name = "Logo"
-Logo.Size = UDim2.new(0, 60, 0, 60)
-Logo.Position = UDim2.new(0.5, 0, 0, 44)
+Logo.Size = UDim2.new(0, 56, 0, 56)
+Logo.Position = UDim2.new(0.5, 0, 0, 38)
 Logo.AnchorPoint = Vector2.new(0.5, 0.5)
 Logo.BackgroundTransparency = 1
 Logo.Image = Config.Logo
@@ -319,10 +345,10 @@ Logo.Parent = Card
 
 local ProgressTrack = Instance.new("Frame")
 ProgressTrack.Name = "ProgressTrack"
-ProgressTrack.Size = UDim2.new(0, 100, 0, 4)
-ProgressTrack.Position = UDim2.new(0.5, 0, 0, 96)
+ProgressTrack.Size = UDim2.new(1, -40, 0, 4)
+ProgressTrack.Position = UDim2.new(0.5, 0, 0, 80)
 ProgressTrack.AnchorPoint = Vector2.new(0.5, 0.5)
-ProgressTrack.BackgroundColor3 = Color3.fromRGB(28, 32, 44)
+ProgressTrack.BackgroundColor3 = Color3.fromRGB(26, 30, 42)
 ProgressTrack.BackgroundTransparency = 1
 ProgressTrack.BorderSizePixel = 0
 ProgressTrack.Parent = Card
@@ -348,42 +374,75 @@ ProgressGlow.Thickness = 1
 ProgressGlow.Transparency = 0.5
 ProgressGlow.Parent = ProgressFill
 
-local function updateProgress(targetPercent, _)
+local StatusLabel = Instance.new("TextLabel")
+StatusLabel.Name = "Status"
+StatusLabel.Size = UDim2.new(1, -95, 0, 16)
+StatusLabel.Position = UDim2.new(0, 20, 0, 96)
+StatusLabel.BackgroundTransparency = 1
+StatusLabel.Font = Enum.Font.GothamMedium
+StatusLabel.Text = "Initializing loader engine..."
+StatusLabel.TextColor3 = Color3.fromRGB(150, 155, 175)
+StatusLabel.TextSize = 11
+StatusLabel.TextXAlignment = Enum.TextXAlignment.Left
+StatusLabel.TextTransparency = 1
+StatusLabel.Parent = Card
+
+local PercentLabel = Instance.new("TextLabel")
+PercentLabel.Name = "Percent"
+PercentLabel.Size = UDim2.new(0, 50, 0, 16)
+PercentLabel.Position = UDim2.new(1, -20, 0, 96)
+PercentLabel.AnchorPoint = Vector2.new(1, 0)
+PercentLabel.BackgroundTransparency = 1
+PercentLabel.Font = Enum.Font.GothamBold
+PercentLabel.Text = "0%"
+PercentLabel.TextColor3 = Config.AccentColor
+PercentLabel.TextSize = 11
+PercentLabel.TextXAlignment = Enum.TextXAlignment.Right
+PercentLabel.TextTransparency = 1
+PercentLabel.Parent = Card
+
+local function updateProgress(targetPercent, statusText)
     local clamped = math.clamp(targetPercent or 0, 0, 100)
-    TweenService:Create(ProgressFill, TweenInfo.new(0.35, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
+    PercentLabel.Text = math.floor(clamped) .. "%"
+    if statusText then
+        StatusLabel.Text = statusText
+    end
+    TweenService:Create(ProgressFill, TweenInfo.new(0.3, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
         Size = UDim2.new(clamped / 100, 0, 1, 0)
     }):Play()
 end
 
 local function playIntroAnimation()
-    TweenService:Create(BackgroundOverlay, TweenInfo.new(0.4), { BackgroundTransparency = 0.5 }):Play()
-    TweenService:Create(Card, TweenInfo.new(0.45, Enum.EasingStyle.Back, Enum.EasingDirection.Out), {
+    TweenService:Create(BackgroundOverlay, TweenInfo.new(0.35), { BackgroundTransparency = 0.45 }):Play()
+    TweenService:Create(Card, TweenInfo.new(0.4, Enum.EasingStyle.Back, Enum.EasingDirection.Out), {
         BackgroundTransparency = 0.08,
         Position = UDim2.new(0.5, 0, 0.5, 0)
     }):Play()
-    TweenService:Create(CardStroke, TweenInfo.new(0.4), { Transparency = 0.6 }):Play()
-    TweenService:Create(CardShadow, TweenInfo.new(0.4), { ImageTransparency = 0.45 }):Play()
+    TweenService:Create(CardStroke, TweenInfo.new(0.35), { Transparency = 0.6 }):Play()
+    TweenService:Create(CardShadow, TweenInfo.new(0.35), { ImageTransparency = 0.45 }):Play()
 
     Logo.Size = UDim2.new(0, 0, 0, 0)
     Logo.ImageTransparency = 1
-    task.wait(0.12)
-    TweenService:Create(Logo, TweenInfo.new(0.5, Enum.EasingStyle.Back, Enum.EasingDirection.Out), {
-        Size = UDim2.new(0, 60, 0, 60),
+    task.wait(0.1)
+    TweenService:Create(Logo, TweenInfo.new(0.45, Enum.EasingStyle.Back, Enum.EasingDirection.Out), {
+        Size = UDim2.new(0, 56, 0, 56),
         ImageTransparency = 0
     }):Play()
 
-    task.wait(0.15)
-    TweenService:Create(ProgressTrack, TweenInfo.new(0.35), { BackgroundTransparency = 0 }):Play()
+    task.wait(0.1)
+    TweenService:Create(ProgressTrack, TweenInfo.new(0.3), { BackgroundTransparency = 0 }):Play()
+    TweenService:Create(StatusLabel, TweenInfo.new(0.3), { TextTransparency = 0 }):Play()
+    TweenService:Create(PercentLabel, TweenInfo.new(0.3), { TextTransparency = 0 }):Play()
 
     task.spawn(function()
         while Logo and Logo.Parent do
             TweenService:Create(Logo, TweenInfo.new(1.1, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut), {
-                Size = UDim2.new(0, 64, 0, 64)
+                Size = UDim2.new(0, 60, 0, 60)
             }):Play()
             task.wait(1.1)
             if not Logo or not Logo.Parent then break end
             TweenService:Create(Logo, TweenInfo.new(1.1, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut), {
-                Size = UDim2.new(0, 58, 0, 58)
+                Size = UDim2.new(0, 54, 0, 54)
             }):Play()
             task.wait(1.1)
         end
@@ -392,11 +451,13 @@ end
 
 local function playExitAnimation()
     TweenService:Create(Card, TweenInfo.new(0.3, Enum.EasingStyle.Quad, Enum.EasingDirection.In), {
-        Size = UDim2.new(0, 120, 0, 90),
+        Size = UDim2.new(0, 180, 0, 100),
         BackgroundTransparency = 1
     }):Play()
     TweenService:Create(Logo, TweenInfo.new(0.25), { ImageTransparency = 1 }):Play()
     TweenService:Create(ProgressTrack, TweenInfo.new(0.25), { BackgroundTransparency = 1 }):Play()
+    TweenService:Create(StatusLabel, TweenInfo.new(0.25), { TextTransparency = 1 }):Play()
+    TweenService:Create(PercentLabel, TweenInfo.new(0.25), { TextTransparency = 1 }):Play()
     TweenService:Create(CardStroke, TweenInfo.new(0.25), { Transparency = 1 }):Play()
     TweenService:Create(CardShadow, TweenInfo.new(0.25), { ImageTransparency = 1 }):Play()
     TweenService:Create(BackgroundOverlay, TweenInfo.new(0.3), { BackgroundTransparency = 1 }):Play()
@@ -404,9 +465,7 @@ local function playExitAnimation()
     pcall(function() ScreenGui:Destroy() end)
 end
 
-local loadAndExecuteGame = nil
-
-function loadAndExecuteGame(matchedGame)
+local function loadAndExecuteGame(matchedGame)
     updateProgress(75, "Loading script for " .. matchedGame.Name .. "...")
 
     local scriptCode = nil
@@ -448,10 +507,8 @@ function loadAndExecuteGame(matchedGame)
         end)
     end
 
-
-
     updateProgress(100, "Ready! Starting " .. matchedGame.Name .. "...")
-    task.wait(0.6)
+    task.wait(0.65)
     playExitAnimation()
 
     local fn, loadErr = loadstring(scriptCode)
@@ -472,11 +529,11 @@ task.spawn(function()
     updateProgress(25, "Checking executor compatibility...")
     task.wait(0.3)
 
-    updateProgress(55, "Detecting active game (PlaceId: " .. game.PlaceId .. ")...")
+    updateProgress(55, "Detecting active game (PlaceId: " .. tostring(game.PlaceId) .. ")...")
     task.wait(0.35)
 
     local matchedGame = detectActiveGame()
-    updateProgress(75, "Matched: " .. matchedGame.Name .. "!")
+    updateProgress(75, "Matched: " .. tostring(matchedGame.Name) .. "!")
     task.wait(0.35)
 
     loadAndExecuteGame(matchedGame)
