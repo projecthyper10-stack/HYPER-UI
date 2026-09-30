@@ -86,7 +86,7 @@ local SupportedGames = {
         GameId   = 66654135,
         PlaceIds = { 142823291, 335132778, 66654135 },
         Local    = "Scripts/M.lua/MM2 DONE.lua",
-        Remote   = Config.RepoBase .. "M.lua/MM2%20DONE.lua",
+        Remote   = "https://raw.githubusercontent.com/projecthyper10-stack/HYPER-MAIN/refs/heads/main/M.lua/3459023766432.lua",
         Version  = "v2.0"
     },
     {
@@ -94,7 +94,7 @@ local SupportedGames = {
         GameId   = 2294168059,
         PlaceIds = { 6305942109, 7494539166 },
         Local    = "Scripts/M.lua/LaundrySimulator_AutoFarm.lua",
-        Remote   = Config.RepoBase .. "M.lua/LaundrySimulator_AutoFarm.lua",
+        Remote   = "https://raw.githubusercontent.com/projecthyper10-stack/HYPER-MAIN/refs/heads/main/M.lua/132434734662346235.lua",
         Version  = "v2.0"
     },
     {
@@ -102,7 +102,7 @@ local SupportedGames = {
         GameId   = 4347712395,
         PlaceIds = { 12077443856 },
         Local    = "Scripts/M.lua/gun auto.lua",
-        Remote   = Config.RepoBase .. "M.lua/gun%20auto.lua",
+        Remote   = "https://raw.githubusercontent.com/projecthyper10-stack/HYPER-MAIN/refs/heads/main/M.lua/234289315122535123.lua",
         Version  = "v2.0"
     },
     {
