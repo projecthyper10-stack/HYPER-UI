@@ -91,7 +91,7 @@ local SCRIPT_VERSION = "v2.6"
 
 local Window = MacLib:Window({
     Title = "HYPER HUB",---- ไม่ต้องแก้
-    Subtitle = "Project Slayers 2",---ชื่อเกม
+    Subtitle = "Universal",---ชื่อเกม
     Version = SCRIPT_VERSION,
     Logo = "rbxassetid://108952102602834",
     Size = UDim2.fromOffset(710, 450),
