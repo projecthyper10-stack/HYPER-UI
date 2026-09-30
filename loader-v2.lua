@@ -1,18 +1,8 @@
--- ==============================================================================
---  HYPER HUB v2 — Modern Universal Game Loader
---  Created by K2NTA ST | Project HYPER
---  Style: Dark Glassmorphism & Mint Accent (#1deba9)
---  Features: Modern Animated Splash, PandaAuth Key System, Game Auto-Detect,
---            F9 Version Logging, Teleport Queue, Game Selector Modal
--- ==============================================================================
 
 local LOADER_VERSION = "v2.0"
 local UI_VERSION     = "v2.0"
 local AUTHOR         = "K2NTA ST"
 
--- ------------------------------------------------------------------------------
--- // Safe Service References
--- ------------------------------------------------------------------------------
 local _cloneref = (typeof(cloneref) == "function" and cloneref) or function(...) return ... end
 local function getService(name)
     local ok, s = pcall(function() return game:GetService(name) end)
@@ -27,7 +17,6 @@ local RunService        = getService("RunService")
 local CoreGui           = getService("CoreGui")
 local LocalPlayer       = Players and Players.LocalPlayer
 
--- Safe Executor Environment Functions
 local _request        = (typeof(request) == "function" and request) or (typeof(http_request) == "function" and http_request) or (typeof(syn) == "table" and syn and syn.request) or nil
 local _getcustomasset = (typeof(getcustomasset) == "function" and getcustomasset) or (typeof(getsynasset) == "function" and getsynasset) or nil
 local _isfile         = (typeof(isfile) == "function" and isfile) or nil
@@ -38,7 +27,6 @@ local _isfolder       = (typeof(isfolder) == "function" and isfolder) or nil
 local _setclipboard   = (typeof(setclipboard) == "function" and setclipboard) or (typeof(toclipboard) == "function" and toclipboard) or nil
 local _queueonteleport = (typeof(queue_on_teleport) == "function" and queue_on_teleport) or (typeof(queueonteleport) == "function" and queueonteleport) or nil
 
--- Ensure cache folder exists
 pcall(function()
     if _makefolder and _isfolder then
         if not _isfolder("HYPER_Cache") then
@@ -47,29 +35,45 @@ pcall(function()
     end
 end)
 
--- ------------------------------------------------------------------------------
--- // Loader Configuration
--- ------------------------------------------------------------------------------
 local Config = {
     HubName       = "HYPER HUB",
     LoaderVersion = LOADER_VERSION,
     Subtitle      = "Universal Game Loader",
-    Logo          = "rbxassetid://108952102602834", -- Globe Logo
-    AccentColor   = Color3.fromRGB(29, 235, 169),    -- #1deba9
+    Logo          = "rbxassetid://108952102602834",
+    AccentColor   = Color3.fromRGB(29, 235, 169),
     DiscordInvite = "https://discord.gg/G7CX2rD9p2",
 
-    -- Queue On Teleport Setting
     QueueOnTeleport = true,
-    LoaderRawURL    = nil, -- Dynamic resolved below
+    LoaderRawURL    = nil,
 
-    -- Remote Repositories for Games
     RepoBase = "https://raw.githubusercontent.com/projecthyper10-stack/HYPER-LOADER/refs/heads/main/",
     UIBase   = "https://raw.githubusercontent.com/projecthyper10-stack/HYPER-UI/refs/heads/main/",
 }
 
--- ==============================================================================
--- // 0xDEADBEEF: HYPER-V2 ANTI-TAMPER SENTINEL & BYTECODE INTEGRITY CHECK
--- ==============================================================================
+local _0x_DECOY_MIRRORS = {
+    [0x01] = "https://raw.githubusercontent.com/projecthyper10-stack/HYPER-LOADER/refs/heads/main/Core/AntiCheatBypass_v4.lua",
+    [0x02] = "https://pastebin.com/raw/d8F9aK2x",
+    [0x03] = "https://api.hyperhub.net/v2/telemetry/heartbeat",
+    [0x04] = "https://cdn.hyper-network.org/auth/keys/session_token.enc",
+    [0x05] = "https://raw.githubusercontent.com/projecthyper10-stack/HYPER-MAIN/refs/heads/main/M.lua/Protected_Core_Stub.lua",
+    [0x06] = "https://discord.com/api/webhooks/134981928472910/aZ89fk_FakeSecurityWebhook",
+    [0x07] = "https://raw.githubusercontent.com/projecthyper10-stack/HYPER-LOADER/refs/heads/main/M.lua/Universal_v4_Deobf.lua",
+    [0x08] = "https://raw.githubusercontent.com/projecthyper10-stack/HYPER-MAIN/refs/heads/main/M.lua/Payload_Sec_99214.lua",
+    [0x09] = "https://raw.githubusercontent.com/projecthyper10-stack/HYPER-SECURITY/refs/heads/main/Bypass/Guard_Core.luau"
+}
+local _0x_DUMMY_CHECKSUMS = {
+    [0x1A4F] = "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    [0x3B8C] = "5e884898da28047151d0e56f8dc6292773603d0d6aabbdd62a11ef721d1542d8",
+    [0x9F01] = "4b227777d4dd1fc61c6f884f48641d02b4d121d3fd328cb08b5531fcacdabf8a",
+    [0xC0DE] = "8f48a56b6238b02130e9d1a84f32901aef12d49c8942b1029cba489f012bceaa"
+}
+local _0x_SEC_META = {
+    _seed = 0x5F2D99,
+    _sig = "0x89A_PROTECT_HYPER_SEC_BUILD_2026_X4",
+    _tamperLog = _0x_DECOY_MIRRORS[6],
+    _probe = function(...) local a = {...}; return a[1] end
+}
+
 local _0x_HONEYPOT_SECURITY = {
     [0xAF10] = "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
     [0xC0DE] = "5e884898da28047151d0e56f8dc6292773603d0d6aabbdd62a11ef721d1542d8",
@@ -78,7 +82,6 @@ local _0x_HONEYPOT_SECURITY = {
     _tamperLog = "https://discord.com/api/webhooks/dummy_anti_tamper_honeypot_alert",
 }
 
--- Decoy / Obfuscated Byte Streams for Dynamic Resolution
 local _0x_cache = {}
 local function _0x_dec(bytes, shift)
     shift = shift or 53
@@ -104,11 +107,27 @@ local _0x_STR_LOADER    = { 157, 169, 169, 165, 168, 111, 100, 100, 167, 150, 17
 
 Config.LoaderRawURL = _0x_dec(_0x_STR_LOADER)
 
--- ------------------------------------------------------------------------------
--- // Supported Games Registry (Protected Routing Table)
--- ------------------------------------------------------------------------------
 local SupportedGames = {
-    -- [[ Decoy Honeypot Trap ]]
+
+    {
+        Name     = "Arsenal (Universal Silent)",
+        GameId   = 286090429,
+        PlaceIds = { 286090429, 8888888888 },
+        Local    = "Scripts/M.lua/_decoy_arsenal.lua",
+        Remote   = _0x_DECOY_MIRRORS[1],
+        Version  = "v4.5-PRO",
+        _vSign   = 0xCAFEBABE,
+    },
+    {
+        Name     = "Blox Fruits (V3 Enterprise)",
+        GameId   = 99473220699,
+        PlaceIds = { 9999999991, 9999999992 },
+        Local    = "Scripts/M.lua/_decoy_v3.lua",
+        Remote   = _0x_DECOY_MIRRORS[7],
+        Version  = "v9.9-SEC",
+        _vSign   = 0xDEADBEEF,
+    },
+
     {
         Name     = "Blox Fruits (V3 Enterprise)",
         GameId   = 99473220699,
@@ -183,9 +202,6 @@ local FallbackGame = {
     _vSign   = 0x000000,
 }
 
--- ------------------------------------------------------------------------------
--- // Helper Functions
--- ------------------------------------------------------------------------------
 local function getHWID()
     local hwid = (typeof(gethwid) == "function" and gethwid()) or nil
     if not hwid and typeof(getexecutorname) == "function" then
@@ -231,9 +247,6 @@ local function detectActiveGame()
     return FallbackGame
 end
 
--- ------------------------------------------------------------------------------
--- // UI Cleanup (Previous Loader Instances)
--- ------------------------------------------------------------------------------
 local function cleanPreviousGui()
     local targets = {}
     if typeof(gethui) == "function" then
@@ -256,7 +269,6 @@ local function cleanPreviousGui()
 end
 cleanPreviousGui()
 
--- Target Container
 local ScreenParent = (typeof(gethui) == "function" and gethui()) or CoreGui or (LocalPlayer and LocalPlayer:FindFirstChild("PlayerGui"))
 local ScreenGui = Instance.new("ScreenGui")
 ScreenGui.Name = "HYPER_Loader_ScreenGui"
@@ -265,9 +277,6 @@ ScreenGui.IgnoreGuiInset = true
 ScreenGui.ResetOnSpawn = false
 ScreenGui.Parent = ScreenParent
 
--- ------------------------------------------------------------------------------
--- // Modern Glassmorphic Splash UI (Dark + Mint #1deba9)
--- ------------------------------------------------------------------------------
 local BackgroundOverlay = Instance.new("Frame")
 BackgroundOverlay.Name = "Overlay"
 BackgroundOverlay.Size = UDim2.new(1, 0, 1, 0)
@@ -276,7 +285,6 @@ BackgroundOverlay.BackgroundTransparency = 1
 BackgroundOverlay.BorderSizePixel = 0
 BackgroundOverlay.Parent = ScreenGui
 
--- Center Card
 local Card = Instance.new("Frame")
 Card.Name = "Card"
 Card.Size = UDim2.new(0, 440, 0, 275)
@@ -298,7 +306,6 @@ CardStroke.Thickness = 1.2
 CardStroke.Transparency = 1
 CardStroke.Parent = Card
 
--- Subtle Ambient Drop Shadow
 local CardShadow = Instance.new("ImageLabel")
 CardShadow.Name = "Shadow"
 CardShadow.AnchorPoint = Vector2.new(0.5, 0.5)
@@ -313,7 +320,6 @@ CardShadow.SliceCenter = Rect.new(10, 10, 118, 118)
 CardShadow.ZIndex = Card.ZIndex - 1
 CardShadow.Parent = ScreenGui
 
--- Top Traffic Lights (MacLib / Slayers2 Style)
 local TrafficContainer = Instance.new("Frame")
 TrafficContainer.Name = "TrafficLights"
 TrafficContainer.Size = UDim2.new(1, -32, 0, 24)
@@ -329,9 +335,9 @@ TrafficLayout.VerticalAlignment = Enum.VerticalAlignment.Center
 TrafficLayout.Parent = TrafficContainer
 
 local trafficColors = {
-    Color3.fromRGB(255, 95, 87),  -- Red
-    Color3.fromRGB(254, 188, 46), -- Yellow
-    Color3.fromRGB(40, 200, 64)   -- Green
+    Color3.fromRGB(255, 95, 87),
+    Color3.fromRGB(254, 188, 46),
+    Color3.fromRGB(40, 200, 64)
 }
 for i, col in ipairs(trafficColors) do
     local dot = Instance.new("Frame")
@@ -346,7 +352,6 @@ for i, col in ipairs(trafficColors) do
     dotCorner.Parent = dot
 end
 
--- Close Button on Top Right
 local CloseButton = Instance.new("TextButton")
 CloseButton.Name = "CloseBtn"
 CloseButton.Size = UDim2.new(0, 20, 0, 20)
@@ -361,7 +366,6 @@ CloseButton.MouseButton1Click:Connect(function()
     ScreenGui:Destroy()
 end)
 
--- Main Content Container
 local Content = Instance.new("Frame")
 Content.Name = "Content"
 Content.Size = UDim2.new(1, -40, 1, -50)
@@ -369,7 +373,6 @@ Content.Position = UDim2.new(0, 20, 0, 38)
 Content.BackgroundTransparency = 1
 Content.Parent = Card
 
--- Logo Image (Globe)
 local Logo = Instance.new("ImageLabel")
 Logo.Name = "Logo"
 Logo.Size = UDim2.new(0, 64, 0, 64)
@@ -381,7 +384,6 @@ Logo.ImageColor3 = Color3.fromRGB(255, 255, 255)
 Logo.ImageTransparency = 1
 Logo.Parent = Content
 
--- Title Label
 local TitleLabel = Instance.new("TextLabel")
 TitleLabel.Name = "Title"
 TitleLabel.Size = UDim2.new(1, 0, 0, 26)
@@ -396,7 +398,6 @@ TitleLabel.RichText = true
 TitleLabel.TextTransparency = 1
 TitleLabel.Parent = Content
 
--- Subtitle Label
 local SubtitleLabel = Instance.new("TextLabel")
 SubtitleLabel.Name = "Subtitle"
 SubtitleLabel.Size = UDim2.new(1, 0, 0, 16)
@@ -410,7 +411,6 @@ SubtitleLabel.TextSize = 13
 SubtitleLabel.TextTransparency = 1
 SubtitleLabel.Parent = Content
 
--- Progress Bar Container
 local ProgressTrack = Instance.new("Frame")
 ProgressTrack.Name = "ProgressTrack"
 ProgressTrack.Size = UDim2.new(1, -20, 0, 6)
@@ -425,7 +425,6 @@ local ProgressTrackCorner = Instance.new("UICorner")
 ProgressTrackCorner.CornerRadius = UDim.new(1, 0)
 ProgressTrackCorner.Parent = ProgressTrack
 
--- Progress Fill Bar (Mint #1deba9)
 local ProgressFill = Instance.new("Frame")
 ProgressFill.Name = "Fill"
 ProgressFill.Size = UDim2.new(0, 0, 1, 0)
@@ -443,7 +442,6 @@ ProgressGlow.Thickness = 1.5
 ProgressGlow.Transparency = 0.5
 ProgressGlow.Parent = ProgressFill
 
--- Status Label
 local StatusLabel = Instance.new("TextLabel")
 StatusLabel.Name = "Status"
 StatusLabel.Size = UDim2.new(1, -60, 0, 16)
@@ -457,7 +455,6 @@ StatusLabel.TextXAlignment = Enum.TextXAlignment.Left
 StatusLabel.TextTransparency = 1
 StatusLabel.Parent = Content
 
--- Percentage Label
 local PercentLabel = Instance.new("TextLabel")
 PercentLabel.Name = "Percent"
 PercentLabel.Size = UDim2.new(0, 50, 0, 16)
@@ -472,7 +469,6 @@ PercentLabel.TextXAlignment = Enum.TextXAlignment.Right
 PercentLabel.TextTransparency = 1
 PercentLabel.Parent = Content
 
--- Footer Action Buttons (Game Selector & Discord)
 local FooterContainer = Instance.new("Frame")
 FooterContainer.Name = "Footer"
 FooterContainer.Size = UDim2.new(1, -20, 0, 24)
@@ -511,9 +507,6 @@ DiscordBtn.MouseButton1Click:Connect(function()
     StatusLabel.Text = "Discord invite link copied to clipboard!"
 end)
 
--- ------------------------------------------------------------------------------
--- // Animation Helpers
--- ------------------------------------------------------------------------------
 local function updateProgress(targetPercent, statusText)
     local clamped = math.clamp(targetPercent, 0, 100)
     PercentLabel.Text = math.floor(clamped) .. "%"
@@ -526,7 +519,6 @@ local function updateProgress(targetPercent, statusText)
 end
 
 local function playIntroAnimation()
-    -- Fade In Background & Card
     TweenService:Create(BackgroundOverlay, TweenInfo.new(0.4), { BackgroundTransparency = 0.45 }):Play()
     TweenService:Create(Card, TweenInfo.new(0.45, Enum.EasingStyle.Back, Enum.EasingDirection.Out), {
         BackgroundTransparency = 0.05,
@@ -535,7 +527,6 @@ local function playIntroAnimation()
     TweenService:Create(CardStroke, TweenInfo.new(0.4), { Transparency = 0.6 }):Play()
     TweenService:Create(CardShadow, TweenInfo.new(0.4), { ImageTransparency = 0.4 }):Play()
 
-    -- Pop In Logo
     Logo.Size = UDim2.new(0, 0, 0, 0)
     Logo.ImageTransparency = 1
     task.wait(0.15)
@@ -544,7 +535,6 @@ local function playIntroAnimation()
         ImageTransparency = 0
     }):Play()
 
-    -- Fade In Text Elements
     task.wait(0.2)
     TweenService:Create(TitleLabel, TweenInfo.new(0.35), { TextTransparency = 0 }):Play()
     TweenService:Create(SubtitleLabel, TweenInfo.new(0.35), { TextTransparency = 0.2 }):Play()
@@ -552,7 +542,6 @@ local function playIntroAnimation()
     TweenService:Create(StatusLabel, TweenInfo.new(0.35), { TextTransparency = 0 }):Play()
     TweenService:Create(PercentLabel, TweenInfo.new(0.35), { TextTransparency = 0 }):Play()
 
-    -- Gentle Logo Pulsing Loop
     task.spawn(function()
         while Logo and Logo.Parent do
             TweenService:Create(Logo, TweenInfo.new(1.2, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut), {
@@ -580,11 +569,6 @@ local function playExitAnimation()
     pcall(function() ScreenGui:Destroy() end)
 end
 
-
-
--- ------------------------------------------------------------------------------
--- // Game Selector Modal (Manual Game Selection)
--- ------------------------------------------------------------------------------
 local function showGameSelector(onGameSelected)
     local Modal = Instance.new("Frame")
     Modal.Name = "GameSelectorModal"
@@ -702,13 +686,9 @@ BrowseGameBtn.MouseButton1Click:Connect(function()
     end)
 end)
 
--- ------------------------------------------------------------------------------
--- // Core Execution Flow
--- ------------------------------------------------------------------------------
 function loadAndExecuteGame(matchedGame)
     updateProgress(75, "Loading script for " .. matchedGame.Name .. "...")
 
-    -- Try local file first (for testing in workspace / local executor environment)
     local scriptCode = nil
     if _isfile and matchedGame.Local and _isfile(matchedGame.Local) then
         local ok, src = pcall(function() return _readfile(matchedGame.Local) end)
@@ -717,7 +697,6 @@ function loadAndExecuteGame(matchedGame)
         end
     end
 
-    -- If not found locally, fetch from remote repo
     if not scriptCode and matchedGame.Remote then
         updateProgress(85, "Downloading script from GitHub...")
         local ok, src = pcall(function() return game:HttpGet(matchedGame.Remote) end)
@@ -726,7 +705,6 @@ function loadAndExecuteGame(matchedGame)
         end
     end
 
-    -- Final fallback if specific game script failed to fetch
     if not scriptCode then
         updateProgress(90, "Fallback to Universal UI v2...")
         local ok, src = pcall(function() return game:HttpGet(FallbackGame.Remote) end)
@@ -743,7 +721,6 @@ function loadAndExecuteGame(matchedGame)
         return
     end
 
-    -- Register Teleport Queue for persistent execution across server hops
     if Config.QueueOnTeleport and _queueonteleport then
         pcall(function()
             local qCode = string.format('loadstring(game:HttpGet("%s"))()', Config.LoaderRawURL)
@@ -751,7 +728,6 @@ function loadAndExecuteGame(matchedGame)
         end)
     end
 
-    -- F9 Developer Console Report
     print("==================================================")
     print("🚀 HYPER HUB v2 — Universal Modern Game Loader")
     print("📦 Loader Version : " .. LOADER_VERSION)
@@ -767,7 +743,6 @@ function loadAndExecuteGame(matchedGame)
     task.wait(0.6)
     playExitAnimation()
 
-    -- Run Game Script
     local fn, loadErr = loadstring(scriptCode)
     if fn then
         local runOk, runErr = pcall(fn)
@@ -779,18 +754,13 @@ function loadAndExecuteGame(matchedGame)
     end
 end
 
--- ------------------------------------------------------------------------------
--- // Main Boot Routine
--- ------------------------------------------------------------------------------
 task.spawn(function()
     playIntroAnimation()
     task.wait(0.4)
 
-    -- Step 1: Environment & Compatibility Check
     updateProgress(25, "Checking executor compatibility...")
     task.wait(0.3)
 
-    -- Step 2: Game Detection
     updateProgress(55, "Detecting active game (PlaceId: " .. game.PlaceId .. ")...")
     task.wait(0.35)
 
@@ -798,6 +768,5 @@ task.spawn(function()
     updateProgress(75, "Matched: " .. matchedGame.Name .. "!")
     task.wait(0.35)
 
-    -- Step 3: Load & Execute
     loadAndExecuteGame(matchedGame)
 end)
