@@ -24,6 +24,23 @@ if Players and not Players.LocalPlayer then
 end
 local LocalPlayer = Players and Players.LocalPlayer
 
+-- ==============================================================================
+--  Executor Compatibility Filter
+-- ==============================================================================
+if typeof(identifyexecutor) == "function" then
+    local execName = tostring(identifyexecutor()):lower()
+    local unsupported = { "solara", "xeno" }
+    for _, name in ipairs(unsupported) do
+        if execName:find(name, 1, true) then
+            if LocalPlayer then
+                LocalPlayer:Kick("[HYPER HUB] Your executor (" .. tostring(identifyexecutor()) .. ") is not supported. Please use a supported executor.")
+            end
+            return
+        end
+    end
+end
+
+
 local _request        = (typeof(request) == "function" and request) or (typeof(http_request) == "function" and http_request) or (typeof(syn) == "table" and syn and syn.request) or nil
 local _getcustomasset = (typeof(getcustomasset) == "function" and getcustomasset) or (typeof(getsynasset) == "function" and getsynasset) or nil
 local _isfile         = (typeof(isfile) == "function" and isfile) or nil
@@ -104,121 +121,161 @@ local Config = {
 
 local SupportedGames = {
     {
-        Name     = "Arsenal (Universal Silent)",
-        PlaceIds = { 88888888881, 88888888882 },
-        GameIds  = { 888888881 },
-        Local    = "Scripts/M.lua/_decoy_arsenal.lua",
-        Remote   = _0x_DECOY_MIRRORS[1],
-        Version  = "v4.5-PRO",
-        _vSign   = 0xCAFEBABE,
-        _isDecoy = true,
+        Name        = "Arsenal (Universal Silent)",
+        PlaceIds    = { 88888888881, 88888888882 },
+        GameIds     = { 888888881 },
+        CreatorIds  = { 8888881 },
+        Local       = "Scripts/M.lua/_decoy_arsenal.lua",
+        Remote      = _0x_DECOY_MIRRORS[1],
+        Version     = "v4.5-PRO",
+        _vSign      = 0xCAFEBABE,
+        _isDecoy    = true,
     },
     {
-        Name     = "Blox Fruits (V3 Enterprise)",
-        PlaceIds = { 99999999911, 99999999922 },
-        GameIds  = { 99999991 },
-        Local    = "Scripts/M.lua/_decoy_v3.lua",
-        Remote   = _0x_DECOY_MIRRORS[7],
-        Version  = "v9.9-SEC",
-        _vSign   = 0xDEADBEEF,
-        _isDecoy = true,
+        Name        = "Blox Fruits (V3 Enterprise)",
+        PlaceIds    = { 99999999911, 99999999922 },
+        GameIds     = { 99999991 },
+        CreatorIds  = { 9999991 },
+        Local       = "Scripts/M.lua/_decoy_v3.lua",
+        Remote      = _0x_DECOY_MIRRORS[7],
+        Version     = "v9.9-SEC",
+        _vSign      = 0xDEADBEEF,
+        _isDecoy    = true,
     },
     {
-        Name     = "Laundry Simulator",
-        PlaceIds = { 6305942109 },
-        GameIds  = { 2327642508 },
-        Keywords = { "laundry simulator", "laundry" },
-        Local    = _0x_dec(_0x_LOC_LAUNDRY, 47),
-        Remote   = _0x_dec(_0x_STR_LAUNDRY, 53),
-        Version  = "v2.0",
-        _vSign   = 0x8C33E1,
+        Name        = "Laundry Simulator",
+        PlaceIds    = { 6305942109 },
+        GameIds     = { 2327642508 },
+        CreatorIds  = { 9342981 },
+        Keywords    = { "laundry simulator", "laundry" },
+        Local       = _0x_dec(_0x_LOC_LAUNDRY, 47),
+        Remote      = _0x_dec(_0x_STR_LAUNDRY, 53),
+        Version     = "v2.0",
+        _vSign      = 0x8C33E1,
     },
     {
-        Name     = "Murder Mystery 2",
-        PlaceIds = { 142823291, 335132309, 636649648, 80469437126309 },
-        GameIds  = { 66654135 },
-        Keywords = { "murder mystery", "mm2" },
-        Local    = _0x_dec(_0x_LOC_MM2, 47),
-        Remote   = _0x_dec(_0x_STR_MM2, 53),
-        Version  = "v2.0",
-        _vSign   = 0x4A1F9B,
+        Name        = "Murder Mystery 2",
+        PlaceIds    = { 142823291, 335132309, 636649648, 80469437126309 },
+        GameIds     = { 66654135 },
+        CreatorIds  = { 1848960 },
+        Keywords    = { "murder mystery", "mm2" },
+        Local       = _0x_dec(_0x_LOC_MM2, 47),
+        Remote      = _0x_dec(_0x_STR_MM2, 53),
+        Version     = "v2.0",
+        _vSign      = 0x4A1F9B,
     },
     {
-        Name     = "Cali Shootout",
-        PlaceIds = { 12077443856, 16940099758 },
-        GameIds  = { 4263576532 },
-        Keywords = { "cali shootout", "shootout" },
-        Local    = _0x_dec(_0x_LOC_GUN, 47),
-        Remote   = _0x_dec(_0x_STR_GUN, 53),
-        Version  = "v2.0",
-        _vSign   = 0x127EEF,
+        Name        = "Cali Shootout",
+        PlaceIds    = { 12077443856, 16940099758 },
+        GameIds     = { 4263576532 },
+        CreatorIds  = { 16727292 },
+        Keywords    = { "cali shootout", "shootout" },
+        Local       = _0x_dec(_0x_LOC_GUN, 47),
+        Remote      = _0x_dec(_0x_STR_GUN, 53),
+        Version     = "v2.0",
+        _vSign      = 0x127EEF,
     },
     {
-        Name     = "Blox Fruits",
-        PlaceIds = {
+        Name        = "Blox Fruits",
+        PlaceIds    = {
             2753915549, 4442272183, 7449423635, 73902483975735,
             76401440271920, 79091703265657, 85211729168715,
             92968389658553, 95165932064349, 100117331123089,
             101151419317285, 113741252407134, 114279672983750,
             117896981438898, 122478697296975
         },
-        GameIds  = { 994732206 },
-        Keywords = { "blox fruits" },
-        Local    = _0x_dec(_0x_LOC_BF, 47),
-        Remote   = _0x_dec(_0x_STR_BF, 53),
-        Version  = "v1.0",
-        _vSign   = 0xAA2211,
+        GameIds     = { 994732206 },
+        CreatorIds  = { 4372130 },
+        Keywords    = { "blox fruits" },
+        Local       = _0x_dec(_0x_LOC_BF, 47),
+        Remote      = _0x_dec(_0x_STR_BF, 53),
+        Version     = "v1.0",
+        _vSign      = 0xAA2211,
     },
     {
-        Name     = "Mine a Mountain",
-        PlaceIds = { 125927821145949, 79553020053789, 87213481970477, 128998882197019 },
-        GameIds  = { 10187294555 },
-        Keywords = { "mine a mountain" },
-        Local    = _0x_dec(_0x_LOC_FAME, 47),
-        Remote   = _0x_dec(_0x_STR_FAME, 53),
-        Version  = "v1.0",
-        _vSign   = 0x66AB81,
+        Name        = "Mine a Mountain",
+        PlaceIds    = { 125927821145949, 79553020053789, 87213481970477, 128998882197019 },
+        GameIds     = { 10187294555 },
+        CreatorIds  = { 596089868 },
+        Keywords    = { "mine a mountain" },
+        Local       = _0x_dec(_0x_LOC_FAME, 47),
+        Remote      = _0x_dec(_0x_STR_FAME, 53),
+        Version     = "v1.0",
+        _vSign      = 0x66AB81,
     },
     {
-        Name     = "Basketball",
-        PlaceIds = { 16033173781, 16270425785 },
-        Keywords = { "basketball" },
-        Local    = _0x_dec(_0x_LOC_BASKET, 47),
-        Remote   = _0x_dec(_0x_STR_BASKET, 53),
-        Version  = "v1.0",
-        _vSign   = 0x334455,
+        Name        = "Basketball",
+        PlaceIds    = { 16033173781, 16270425785 },
+        CreatorIds  = {},
+        Keywords    = { "basketball" },
+        Local       = _0x_dec(_0x_LOC_BASKET, 47),
+        Remote      = _0x_dec(_0x_STR_BASKET, 53),
+        Version     = "v1.0",
+        _vSign      = 0x334455,
     },
     {
-        Name     = "BasketballZero",
-        PlaceIds = {
+        Name        = "BasketballZero",
+        PlaceIds    = {
             129230994638464, 130739873848552, 70454767164205,
             71683821699644, 72476829463897, 73708914208963,
             90346996348563, 91733245171139, 95656979989750,
             98118902024430, 140469311035169
         },
-        GameIds  = { 7028566528 },
-        Keywords = { "basketball: zero", "basketballzero" },
-        Local    = _0x_dec(_0x_LOC_BASKET, 47),
-        Remote   = _0x_dec(_0x_STR_BASKET, 53),
-        Version  = "v1.0",
-        _vSign   = 0x556677,
+        GameIds     = { 7028566528 },
+        CreatorIds  = { 34852864 },
+        Keywords    = { "basketball: zero", "basketballzero" },
+        Local       = _0x_dec(_0x_LOC_BASKET, 47),
+        Remote      = _0x_dec(_0x_STR_BASKET, 53),
+        Version     = "v1.0",
+        _vSign      = 0x556677,
     },
 }
 
 local FallbackGame = {
-    Name     = "Universal Hub",
-    PlaceIds = {},
-    GameIds  = {},
-    Keywords = {},
-    Local    = _0x_dec(_0x_LOC_UNIVERSAL, 47),
-    Remote   = _0x_dec(_0x_STR_UNIVERSAL, 53),
-    Version  = "v2.0",
-    _vSign   = 0x000000,
+    Name        = "Universal Hub",
+    PlaceIds    = {},
+    GameIds     = {},
+    CreatorIds  = {},
+    Keywords    = {},
+    Local       = _0x_dec(_0x_LOC_UNIVERSAL, 47),
+    Remote      = _0x_dec(_0x_STR_UNIVERSAL, 53),
+    Version     = "v2.0",
+    _vSign      = 0x000000,
 }
 
+-- ==============================================================================
+--  Fast O(1) Hash Map Pre-indexing (PlaceId, GameId, CreatorId)
+-- ==============================================================================
+local GameLookup = {
+    ByGame    = {},
+    ByPlace   = {},
+    ByCreator = {}
+}
+
+for _, g in ipairs(SupportedGames) do
+    if not g._isDecoy then
+        if g.GameIds then
+            for _, gid in ipairs(g.GameIds) do
+                GameLookup.ByGame[tonumber(gid)] = g
+            end
+        end
+        if g.PlaceIds then
+            for _, pid in ipairs(g.PlaceIds) do
+                GameLookup.ByPlace[tonumber(pid)] = g
+            end
+        end
+        if g.CreatorIds then
+            for _, cid in ipairs(g.CreatorIds) do
+                GameLookup.ByCreator[tonumber(cid)] = g
+            end
+        end
+    end
+end
+
 local function detectActiveGame()
-    local curPlace = tonumber(game.PlaceId) or 0
-    local curGame  = tonumber(game.GameId) or 0
+    local curPlace   = tonumber(game.PlaceId) or 0
+    local curGame    = tonumber(game.GameId) or 0
+    local curCreator = tonumber(game.CreatorId) or 0
 
     if (curPlace == 0 or curGame == 0) and not game:IsLoaded() then
         pcall(function() game.Loaded:Wait() end)
@@ -227,41 +284,21 @@ local function detectActiveGame()
     local t0 = tick()
     while (curPlace == 0 or curGame == 0) and (tick() - t0 < 3) do
         task.wait(0.2)
-        curPlace = tonumber(game.PlaceId) or 0
-        curGame  = tonumber(game.GameId) or 0
+        curPlace   = tonumber(game.PlaceId) or 0
+        curGame    = tonumber(game.GameId) or 0
+        curCreator = tonumber(game.CreatorId) or 0
     end
 
-    print(string.format("[HYPER HUB] Detecting map... PlaceId: %s | GameId: %s", tostring(curPlace), tostring(curGame)))
+    print(string.format("[HYPER HUB] Detecting map... PlaceId: %s | GameId: %s | CreatorId: %s", tostring(curPlace), tostring(curGame), tostring(curCreator)))
 
-    -- 1. Match UniverseId (GameId) - Highest priority across sub-places
-    if curGame > 0 then
-        for _, g in ipairs(SupportedGames) do
-            if g.GameIds and not g._isDecoy then
-                for _, gid in ipairs(g.GameIds) do
-                    if tonumber(gid) == curGame then
-                        print(string.format("[HYPER HUB] Detected by GameId (%s): %s", tostring(curGame), g.Name))
-                        return g
-                    end
-                end
-            end
-        end
+    -- Fast O(1) Hash Lookup: GameId > PlaceId > CreatorId
+    local matched = GameLookup.ByGame[curGame] or GameLookup.ByPlace[curPlace] or GameLookup.ByCreator[curCreator]
+    if matched then
+        print(string.format("[HYPER HUB] O(1) Matched: %s", matched.Name))
+        return matched
     end
 
-    -- 2. Match PlaceId
-    if curPlace > 0 then
-        for _, g in ipairs(SupportedGames) do
-            if g.PlaceIds and not g._isDecoy then
-                for _, pid in ipairs(g.PlaceIds) do
-                    if tonumber(pid) == curPlace then
-                        print(string.format("[HYPER HUB] Detected by PlaceId (%s): %s", tostring(curPlace), g.Name))
-                        return g
-                    end
-                end
-            end
-        end
-    end
-
-    -- 3. Match by Place Name (MarketplaceService fallback)
+    -- Fallback: Match by Place Name (MarketplaceService)
     local placeName = nil
     pcall(function()
         local MarketplaceService = getService("MarketplaceService") or game:GetService("MarketplaceService")
@@ -287,7 +324,7 @@ local function detectActiveGame()
         end
     end
 
-    warn(string.format("[HYPER HUB] Map not supported! PlaceId: %s | GameId: %s", tostring(curPlace), tostring(curGame)))
+    warn(string.format("[HYPER HUB] Map not supported! PlaceId: %s | GameId: %s | CreatorId: %s", tostring(curPlace), tostring(curGame), tostring(curCreator)))
     return FallbackGame
 end
 
@@ -483,6 +520,9 @@ end
 
 local function loadAndExecuteGame(matchedGame)
     updateProgress(75, "กำลังโหลด: " .. matchedGame.Name)
+
+    -- Anti-rate-limit jitter delay (0.15 - 0.45s random wait)
+    task.wait(math.random(15, 45) / 100)
 
     local scriptCode = nil
     if _isfile and matchedGame.Local and _isfile(matchedGame.Local) then
