@@ -58,16 +58,6 @@ local Config = {
     AccentColor   = Color3.fromRGB(29, 235, 169),    -- #1deba9
     DiscordInvite = "https://discord.gg/G7CX2rD9p2",
 
-    -- Key System Settings (PandaAuth)
-    KeySystem = {
-        Enabled   = false, -- Set to true to require Key, false for Free/Dev Mode
-        ServiceId = "hyperhub",
-        BaseURL   = "https://pandauth.com",
-        AdsURL    = "https://ads.pandauth.com",
-        ApiURL    = "https://api.pandauth.com",
-        CacheKey  = "HYPER_Cache/key.txt",
-    },
-
     -- Queue On Teleport Setting
     QueueOnTeleport = true,
     LoaderRawURL    = nil, -- Dynamic resolved below
@@ -214,67 +204,12 @@ local function getExecutorName()
     return tostring(name)
 end
 
-local function getPandaGetKeyURL()
-    local hwid = getHWID()
-    return string.format(
-        "%s/getkey/%s?hwid=%s",
-        Config.KeySystem.AdsURL,
-        Config.KeySystem.ServiceId,
-        HttpService:UrlEncode(hwid)
-    )
-end
-
 local function copyToClipboard(text)
     local copied = false
     if _setclipboard then
         pcall(function() _setclipboard(text); copied = true end)
     end
     return copied
-end
-
-local function verifyPandaKey(key)
-    if not key or key == "" then
-        return false, "Key cannot be empty"
-    end
-    local cleanKey = tostring(key):match("^%s*(.-)%s*$")
-    if not cleanKey or cleanKey == "" then
-        return false, "Key cannot be empty"
-    end
-
-    -- Developer Test Pass ("TEST")
-    if cleanKey:upper() == "TEST" then
-        return true, "Access Granted • Developer Pass"
-    end
-
-    -- HTTP Request to Panda API
-    if _request then
-        local hwid = getHWID()
-        local url = string.format(
-            "%s/api/validate?service=%s&key=%s&hwid=%s",
-            Config.KeySystem.ApiURL,
-            Config.KeySystem.ServiceId,
-            cleanKey,
-            HttpService:UrlEncode(hwid)
-        )
-        local ok, res = pcall(function()
-            return _request({ Url = url, Method = "GET" })
-        end)
-        if ok and res and res.Body then
-            local pOk, parsed = pcall(function() return HttpService:JSONDecode(res.Body) end)
-            if pOk and parsed and (parsed.success == true or parsed.authenticated == true or parsed.valid == true) then
-                return true, "Key Verified Successfully!"
-            elseif pOk and parsed and parsed.message then
-                return false, tostring(parsed.message)
-            end
-        end
-    end
-
-    -- Fallback simple check
-    if #cleanKey >= 8 then
-        return true, "Key Accepted!"
-    end
-
-    return false, "Invalid Key! Please get a valid key from Linkvertise/Panda."
 end
 
 local function detectActiveGame()
@@ -645,156 +580,7 @@ local function playExitAnimation()
     pcall(function() ScreenGui:Destroy() end)
 end
 
--- ------------------------------------------------------------------------------
--- // Key System Modal (Shown when Config.KeySystem.Enabled == true)
--- ------------------------------------------------------------------------------
-local function showKeyModal(onKeyVerified)
-    local KeyModal = Instance.new("Frame")
-    KeyModal.Name = "KeyModal"
-    KeyModal.Size = UDim2.new(0, 400, 0, 230)
-    KeyModal.Position = UDim2.new(0.5, 0, 0.5, 0)
-    KeyModal.AnchorPoint = Vector2.new(0.5, 0.5)
-    KeyModal.BackgroundColor3 = Color3.fromRGB(18, 20, 28)
-    KeyModal.BorderSizePixel = 0
-    KeyModal.ZIndex = Card.ZIndex + 10
-    KeyModal.Parent = ScreenGui
 
-    local ModalCorner = Instance.new("UICorner")
-    ModalCorner.CornerRadius = UDim.new(0, 16)
-    ModalCorner.Parent = KeyModal
-
-    local ModalStroke = Instance.new("UIStroke")
-    ModalStroke.Color = Config.AccentColor
-    ModalStroke.Thickness = 1.2
-    ModalStroke.Transparency = 0.5
-    ModalStroke.Parent = KeyModal
-
-    local ModalTitle = Instance.new("TextLabel")
-    ModalTitle.Size = UDim2.new(1, -40, 0, 28)
-    ModalTitle.Position = UDim2.new(0, 20, 0, 18)
-    ModalTitle.BackgroundTransparency = 1
-    ModalTitle.Font = Enum.Font.GothamBold
-    ModalTitle.Text = '🔑 Key Authentication'
-    ModalTitle.TextColor3 = Color3.fromRGB(255, 255, 255)
-    ModalTitle.TextSize = 18
-    ModalTitle.TextXAlignment = Enum.TextXAlignment.Left
-    ModalTitle.Parent = KeyModal
-
-    local ModalDesc = Instance.new("TextLabel")
-    ModalDesc.Size = UDim2.new(1, -40, 0, 32)
-    ModalDesc.Position = UDim2.new(0, 20, 0, 48)
-    ModalDesc.BackgroundTransparency = 1
-    ModalDesc.Font = Enum.Font.Gotham
-    ModalDesc.Text = "Please enter your key below to unlock HYPER HUB v2.\nClick 'Copy Link' to generate a free Panda key."
-    ModalDesc.TextColor3 = Color3.fromRGB(160, 165, 185)
-    ModalDesc.TextSize = 12
-    ModalDesc.TextXAlignment = Enum.TextXAlignment.Left
-    ModalDesc.TextWrapped = true
-    ModalDesc.Parent = KeyModal
-
-    -- Input Box
-    local InputFrame = Instance.new("Frame")
-    InputFrame.Size = UDim2.new(1, -40, 0, 38)
-    InputFrame.Position = UDim2.new(0, 20, 0, 92)
-    InputFrame.BackgroundColor3 = Color3.fromRGB(25, 28, 38)
-    InputFrame.BorderSizePixel = 0
-    InputFrame.Parent = KeyModal
-
-    local InputCorner = Instance.new("UICorner")
-    InputCorner.CornerRadius = UDim.new(0, 8)
-    InputCorner.Parent = InputFrame
-
-    local InputStroke = Instance.new("UIStroke")
-    InputStroke.Color = Color3.fromRGB(45, 52, 68)
-    InputStroke.Thickness = 1
-    InputStroke.Parent = InputFrame
-
-    local TextBox = Instance.new("TextBox")
-    TextBox.Size = UDim2.new(1, -20, 1, 0)
-    TextBox.Position = UDim2.new(0, 10, 0, 0)
-    TextBox.BackgroundTransparency = 1
-    TextBox.Font = Enum.Font.Gotham
-    TextBox.PlaceholderText = "Paste your key here (or type TEST for Dev Mode)..."
-    TextBox.PlaceholderColor3 = Color3.fromRGB(110, 115, 135)
-    TextBox.Text = ""
-    TextBox.TextColor3 = Color3.fromRGB(255, 255, 255)
-    TextBox.TextSize = 13
-    TextBox.TextXAlignment = Enum.TextXAlignment.Left
-    TextBox.ClearTextOnFocus = false
-    TextBox.Parent = InputFrame
-
-    -- Buttons Area
-    local SubmitBtn = Instance.new("TextButton")
-    SubmitBtn.Size = UDim2.new(0, 110, 0, 34)
-    SubmitBtn.Position = UDim2.new(0, 20, 0, 145)
-    SubmitBtn.BackgroundColor3 = Config.AccentColor
-    SubmitBtn.Font = Enum.Font.GothamBold
-    SubmitBtn.Text = "Verify Key"
-    SubmitBtn.TextColor3 = Color3.fromRGB(15, 20, 25)
-    SubmitBtn.TextSize = 13
-    SubmitBtn.BorderSizePixel = 0
-    SubmitBtn.Parent = KeyModal
-
-    local SubmitCorner = Instance.new("UICorner")
-    SubmitCorner.CornerRadius = UDim.new(0, 8)
-    SubmitCorner.Parent = SubmitBtn
-
-    local CopyLinkBtn = Instance.new("TextButton")
-    CopyLinkBtn.Size = UDim2.new(0, 110, 0, 34)
-    CopyLinkBtn.Position = UDim2.new(0, 140, 0, 145)
-    CopyLinkBtn.BackgroundColor3 = Color3.fromRGB(30, 35, 48)
-    CopyLinkBtn.Font = Enum.Font.GothamMedium
-    CopyLinkBtn.Text = "Copy Key Link"
-    CopyLinkBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
-    CopyLinkBtn.TextSize = 13
-    CopyLinkBtn.BorderSizePixel = 0
-    CopyLinkBtn.Parent = KeyModal
-
-    local CopyCorner = Instance.new("UICorner")
-    CopyCorner.CornerRadius = UDim.new(0, 8)
-    CopyCorner.Parent = CopyLinkBtn
-
-    local StatusText = Instance.new("TextLabel")
-    StatusText.Size = UDim2.new(1, -40, 0, 20)
-    StatusText.Position = UDim2.new(0, 20, 0, 192)
-    StatusText.BackgroundTransparency = 1
-    StatusText.Font = Enum.Font.Gotham
-    StatusText.Text = ""
-    StatusText.TextColor3 = Color3.fromRGB(255, 95, 87)
-    StatusText.TextSize = 12
-    StatusText.TextXAlignment = Enum.TextXAlignment.Left
-    StatusText.Parent = KeyModal
-
-    CopyLinkBtn.MouseButton1Click:Connect(function()
-        local link = getPandaGetKeyURL()
-        copyToClipboard(link)
-        StatusText.TextColor3 = Config.AccentColor
-        StatusText.Text = "Copied Panda Key link to clipboard!"
-    end)
-
-    SubmitBtn.MouseButton1Click:Connect(function()
-        local inputKey = TextBox.Text
-        StatusText.TextColor3 = Color3.fromRGB(254, 188, 46)
-        StatusText.Text = "Verifying key with Panda server..."
-
-        task.spawn(function()
-            local success, msg = verifyPandaKey(inputKey)
-            if success then
-                StatusText.TextColor3 = Config.AccentColor
-                StatusText.Text = "Key Verified! Loading game..."
-                if _writefile then
-                    pcall(function() _writefile(Config.KeySystem.CacheKey, inputKey) end)
-                end
-                task.wait(0.6)
-                KeyModal:Destroy()
-                if onKeyVerified then onKeyVerified() end
-            else
-                StatusText.TextColor3 = Color3.fromRGB(255, 95, 87)
-                StatusText.Text = msg or "Verification Failed."
-            end
-        end)
-    end)
-end
 
 -- ------------------------------------------------------------------------------
 -- // Game Selector Modal (Manual Game Selection)
@@ -1001,50 +787,17 @@ task.spawn(function()
     task.wait(0.4)
 
     -- Step 1: Environment & Compatibility Check
-    updateProgress(15, "Checking executor compatibility...")
-    task.wait(0.35)
-
-    -- Step 2: Key System / Whitelist
-    updateProgress(35, "Checking authentication...")
+    updateProgress(25, "Checking executor compatibility...")
     task.wait(0.3)
 
-    local function proceedToGameDetection()
-        -- Step 3: Game Detection
-        updateProgress(55, "Detecting active game (PlaceId: " .. game.PlaceId .. ")...")
-        task.wait(0.4)
+    -- Step 2: Game Detection
+    updateProgress(55, "Detecting active game (PlaceId: " .. game.PlaceId .. ")...")
+    task.wait(0.35)
 
-        local matchedGame = detectActiveGame()
-        updateProgress(70, "Matched: " .. matchedGame.Name .. "!")
-        task.wait(0.35)
+    local matchedGame = detectActiveGame()
+    updateProgress(75, "Matched: " .. matchedGame.Name .. "!")
+    task.wait(0.35)
 
-        -- Step 4: Load & Execute
-        loadAndExecuteGame(matchedGame)
-    end
-
-    if Config.KeySystem.Enabled then
-        -- Check cached key
-        local hasValidCache = false
-        if _isfile and _isfile(Config.KeySystem.CacheKey) then
-            local cachedKey = _readfile(Config.KeySystem.CacheKey)
-            local valid, _ = verifyPandaKey(cachedKey)
-            if valid then
-                hasValidCache = true
-            end
-        end
-
-        if hasValidCache then
-            updateProgress(45, "Verified with cached key!")
-            task.wait(0.3)
-            proceedToGameDetection()
-        else
-            showKeyModal(function()
-                proceedToGameDetection()
-            end)
-        end
-    else
-        -- Free Mode / Direct Boot
-        updateProgress(50, "Free Mode active • Authentication bypassed.")
-        task.wait(0.25)
-        proceedToGameDetection()
-    end
+    -- Step 3: Load & Execute
+    loadAndExecuteGame(matchedGame)
 end)
