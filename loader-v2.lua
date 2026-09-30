@@ -66,18 +66,13 @@ local _0x_SEC_META = {
     _probe = function(...) local a = {...}; return a[1] end
 }
 
-local _0x_cache = {}
 local function _0x_dec(bytes, shift)
     shift = shift or 53
-    local hash = #bytes .. "_" .. shift
-    if _0x_cache[hash] then return _0x_cache[hash] end
     local str = {}
     for i = 1, #bytes do
         str[i] = string.char(bytes[i] - shift)
     end
-    local res = table.concat(str)
-    _0x_cache[hash] = res
-    return res
+    return table.concat(str)
 end
 
 local _0x_STR_LOADER_RAW = {157, 169, 169, 165, 168, 111, 100, 100, 167, 150, 172, 99, 156, 158, 169, 157, 170, 151, 170, 168, 154, 167, 152, 164, 163, 169, 154, 163, 169, 99, 152, 164, 162, 100, 165, 167, 164, 159, 154, 152, 169, 157, 174, 165, 154, 167, 102, 101, 98, 168, 169, 150, 152, 160, 100, 125, 142, 133, 122, 135, 98, 129, 132, 118, 121, 122, 135, 99, 131, 122, 140, 100, 167, 154, 155, 168, 100, 157, 154, 150, 153, 168, 100, 162, 150, 158, 163, 100, 161, 164, 150, 153, 154, 167, 98, 171, 103, 99, 161, 170, 150}
